@@ -146,7 +146,14 @@ function collect(data) {
   return { points, weights }
 }
 
-// Analyse an ImageData buffer → { h, s } for the dominant vibrant colour, or
+function rgbHex(r, g, b) {
+  const to = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')
+  return `#${to(r)}${to(g)}${to(b)}`
+}
+
+// Analyse an ImageData buffer → { h, s, colors } where `colors` are the image's
+// actual dominant vibrant colours (up to 3, most prominent first) so effects
+// can reflect the real avatar palette, not just one rotated hue. Returns
 // { mono: true } if the image is essentially greyscale.
 function analyze(data) {
   const { points, weights } = collect(data)
@@ -154,18 +161,17 @@ function analyze(data) {
   if (!clusters.length) return { mono: true }
 
   const total = clusters.reduce((sum, c) => sum + c.weight, 0)
-  // Score clusters on vibrancy × presence, ignoring near-greys and extremes.
-  let best = null, bestScore = -1
-  for (const c of clusters) {
-    const share = c.weight / total
-    if (c.chroma < 0.04 || c.L < 0.18 || c.L > 0.92) continue
-    const score = c.chroma * Math.sqrt(share)
-    if (score > bestScore) { bestScore = score; best = c }
-  }
-  if (!best) return { mono: true }
+  // Rank clusters on vibrancy × presence, dropping near-greys and extremes.
+  const vibrant = clusters
+    .filter((c) => c.chroma >= 0.04 && c.L >= 0.18 && c.L <= 0.92)
+    .map((c) => ({ c, score: c.chroma * Math.sqrt(c.weight / total) }))
+    .sort((a, b) => b.score - a.score)
+  if (!vibrant.length) return { mono: true }
 
-  const [h, s] = rgbToHsl(best.r, best.g, best.b)
-  return { h, s }
+  const primary = vibrant[0].c
+  const [h, s] = rgbToHsl(primary.r, primary.g, primary.b)
+  const colors = vibrant.slice(0, 3).map(({ c }) => rgbHex(c.r, c.g, c.b))
+  return { h, s, colors }
 }
 
 function readCache(url) {

@@ -65,11 +65,16 @@ function hslToHex(h, s, l) {
   return `#${f(0)}${f(8)}${f(4)}`
 }
 
-// Concrete banner colours derived from the same hue/sat the palette uses, so
-// the background effect matches the avatar. [primary, secondary, tertiary, dark].
-function paletteColorsFrom(h, s) {
+// Build [primary, secondary, tertiary, dark] for the banner. Prefer the
+// avatar's *actual* dominant colours from Okolors so multi-colour effects look
+// like the pfp; fall back to hue-derived shades when only one colour is found.
+function bannerColorsFrom(res, s) {
   const S = Math.round(Math.min(0.92, Math.max(0.5, s)) * 100)
-  return [hslToHex(h, S, 62), hslToHex(h + 28, S, 56), hslToHex(h + 335, S, 50), hslToHex(h, S, 15)]
+  const cols = (res.colors || []).filter(Boolean)
+  const c1 = cols[0] || hslToHex(res.h, S, 62)
+  const c2 = cols[1] || hslToHex(res.h + 28, S, 56)
+  const c3 = cols[2] || hslToHex(res.h + 335, S, 50)
+  return [c1, c2, c3, hslToHex(res.h, S, 15)]
 }
 const DEFAULT_BANNER_COLORS = ['#5865f2', '#7d5bf2', '#4e54e0', '#161a2e']
 const MONO_BANNER_COLORS = [hslToHex(225, 12, 78), hslToHex(225, 10, 56), hslToHex(225, 10, 40), hslToHex(225, 10, 13)]
@@ -136,7 +141,7 @@ export default function App() {
       if (res.mono) { applyMono(); revealBanner(MONO_BANNER_COLORS, true); return } // greyscale
       const sat = Math.min(0.9, Math.max(0.55, res.s))
       applyPalette(res.h, sat)
-      revealBanner(paletteColorsFrom(res.h, sat), true)
+      revealBanner(bannerColorsFrom(res, sat), true)
     })
   }
 
@@ -345,7 +350,7 @@ export default function App() {
         {/* ===== ABOUT ===== */}
         {active === 'about' && (
           <div style={{ animation: 'fadeUp .45s ease both', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '22px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '14px' }}>
               <span style={{ color: 'var(--accent)', fontSize: '15px' }}>✦</span>
               <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>About Me</h2>
             </div>
@@ -388,7 +393,9 @@ export default function App() {
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '9px', margin: '22px 22px 14px' }}>
-              <span style={{ color: 'var(--accent)', fontSize: '15px' }}>🎮</span>
+              <span style={{ color: 'var(--accent)', display: 'flex', alignItems: 'center' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" x2="10" y1="12" y2="12" /><line x1="8" x2="8" y1="10" y2="14" /><line x1="15" x2="15.01" y1="13" y2="13" /><line x1="18" x2="18.01" y1="11" y2="11" /><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.544-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg>
+              </span>
               <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Games In Rotation</h2>
             </div>
             <div style={{ position: 'relative', padding: '12px 0', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)', maskImage: 'linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)' }}>
