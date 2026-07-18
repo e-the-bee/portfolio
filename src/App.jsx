@@ -1,13 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
-import ImageSlot from './components/ImageSlot.jsx'
 
 const DISCORD_ID = '1164594827883728987'
 
 const GAMES = [
-  { label: 'Minecraft', img: '/games/minecraft.jpg' },
-  { label: 'Geometry Dash', img: '/games/geometry-dash.jpg' },
-  { label: 'Rocket League', img: '/games/rocket-league.jpg' },
-  { label: 'osu!', img: '/games/osu.png', fit: 'contain', bg: '#ff77a9' },
+  { label: 'Minecraft', img: '/games/minecraft.jpg', link: 'https://www.minecraft.net/' },
+  { label: 'Geometry Dash', img: '/games/geometry-dash.jpg', link: 'https://www.robtopgames.com/' },
+  { label: 'Rocket League', img: '/games/rocket-league.jpg', link: 'https://www.rocketleague.com/' },
+  { label: 'osu!', img: '/games/osu.png', fit: 'contain', bg: '#ff77a9', link: 'https://osu.ppy.sh/' },
+]
+
+// Projects shown in the Projects tab — a single row of two cards.
+const PROJECTS = [
+  {
+    id: 'src',
+    title: 'this site',
+    desc: 'The source behind this very page — a Vite + React single-page portfolio with a live Discord status, Spotify players and dynamic palette. Click through to read the code on Codeberg.',
+    link: 'https://codeberg.org/ethebee3/portfolio',
+  },
+  {
+    id: 'blanket',
+    title: 'blanket',
+    desc: 'coming soon',
+  },
 ]
 
 // Real Spotify tracks — rendered as official embed players (30s preview for
@@ -20,10 +34,16 @@ const TRACKS = [
 ]
 
 const LANGS = [
-  { key: 'html', label: 'HTML' }, { key: 'css', label: 'CSS' }, { key: 'js', label: 'JavaScript' },
-  { key: 'react', label: 'React' }, { key: 'cpp', label: 'C++' }, { key: 'java', label: 'Java' },
-  { key: 'python', label: 'Python' }, { key: 'git', label: 'Git' }, { key: 'github', label: 'GitHub' },
-  { key: 'mysql', label: 'MySQL' },
+  { key: 'html', label: 'HTML', link: 'https://developer.mozilla.org/en-US/docs/Web/HTML' },
+  { key: 'css', label: 'CSS', link: 'https://developer.mozilla.org/en-US/docs/Web/CSS' },
+  { key: 'js', label: 'JavaScript', link: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript' },
+  { key: 'react', label: 'React', link: 'https://react.dev/' },
+  { key: 'cpp', label: 'C++', link: 'https://isocpp.org/' },
+  { key: 'java', label: 'Java', link: 'https://www.java.com/' },
+  { key: 'python', label: 'Python', link: 'https://www.python.org/' },
+  { key: 'git', label: 'Git', link: 'https://git-scm.com/' },
+  { key: 'github', label: 'GitHub', link: 'https://github.com/' },
+  { key: 'mysql', label: 'MySQL', link: 'https://www.mysql.com/' },
 ]
 
 // ── color helpers ──────────────────────────────────────────────────────────
@@ -300,6 +320,9 @@ export default function App() {
               <a href="#" title="GitHub" className="om-social" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--card2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s ease' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58v-2.03c-3.34.73-4.04-1.6-4.04-1.6-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.34-5.47-5.95 0-1.31.47-2.39 1.24-3.23-.13-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 0 1 6 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.92 1.23 3.23 0 4.62-2.81 5.64-5.49 5.94.43.37.82 1.1.82 2.22v3.29c0 .32.22.7.83.58A12.01 12.01 0 0 0 24 12.5C24 5.87 18.63.5 12 .5Z" /></svg>
               </a>
+              <a href="https://codeberg.org/ethebee3" target="_blank" rel="noopener noreferrer" title="Codeberg" className="om-social" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--card2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s ease' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z" /></svg>
+              </a>
               <a href="#" title="Email" className="om-social" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--card2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s ease' }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-10 6L2 7" /></svg>
               </a>
@@ -362,9 +385,9 @@ export default function App() {
             <div style={{ position: 'relative', padding: '12px 0', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)', maskImage: 'linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)' }}>
               <div className="om-marquee om-lang" data-dir="-1" data-speed="38" style={{ display: 'flex', gap: '14px', width: 'max-content', willChange: 'transform' }}>
                 {langsLoop.map((lang, i) => (
-                  <div key={i} title={lang.label} className="om-lang-tile" style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'var(--card2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'transform .25s ease' }}>
+                  <a key={i} href={lang.link} target="_blank" rel="noopener noreferrer" title={lang.label} className="om-lang-tile" style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'var(--card2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'transform .25s ease' }}>
                     <img src={lang.url} alt={lang.label} width="34" height="34" style={{ display: 'block' }} />
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
@@ -375,12 +398,12 @@ export default function App() {
             <div style={{ position: 'relative', padding: '12px 0', WebkitMaskImage: 'linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)', maskImage: 'linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)' }}>
               <div className="om-marquee om-games" data-dir="1" data-speed="34" style={{ display: 'flex', gap: '14px', width: 'max-content', willChange: 'transform' }}>
                 {gamesLoop.map((game, i) => (
-                  <div key={i} title={game.label} className="om-game-card" style={{ width: '118px', flexShrink: 0, borderRadius: '14px', overflow: 'hidden', background: 'var(--card2)', border: '1px solid var(--border)', transition: 'transform .25s ease' }}>
+                  <a key={i} href={game.link} target="_blank" rel="noopener noreferrer" title={game.label} className="om-game-card" style={{ width: '118px', flexShrink: 0, borderRadius: '14px', overflow: 'hidden', background: 'var(--card2)', border: '1px solid var(--border)', transition: 'transform .25s ease' }}>
                     <div style={{ aspectRatio: '3 / 4', background: game.bg || 'var(--card3)', overflow: 'hidden', padding: game.fit === 'contain' ? '16px' : 0 }}>
                       <img src={game.img} alt={game.label} loading="lazy" draggable="false" style={{ width: '100%', height: '100%', objectFit: game.fit || 'cover', display: 'block', userSelect: 'none' }} />
                     </div>
                     <div style={{ padding: '8px 11px', fontSize: '11.5px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{game.label}</div>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
@@ -423,20 +446,25 @@ export default function App() {
               <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Current Projects</h2>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              {[
-                { id: 'proj1', title: 'Project One' },
-                { id: 'proj2', title: 'Project Two' },
-                { id: 'proj3', title: 'Project Three' },
-                { id: 'proj4', title: 'Project Four' },
-              ].map((p) => (
-                <div key={p.id} className="om-project-card" style={{ background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', transition: 'transform .2s ease,border-color .2s ease' }}>
-                  <ImageSlot shape="rect" placeholder="Preview" style={{ width: '100%', height: '88px', display: 'block' }} />
-                  <div style={{ padding: '12px' }}>
-                    <div style={{ fontSize: '14px', fontWeight: 700 }}>{p.title}</div>
-                    <div style={{ fontSize: '11.5px', color: 'var(--muted)', marginTop: '4px', lineHeight: 1.5 }}>placeholder — one line about it.</div>
-                  </div>
-                </div>
-              ))}
+              {PROJECTS.map((p) => {
+                const cardStyle = { display: 'flex', flexDirection: 'column', minHeight: '150px', background: 'var(--card2)', border: '1px solid var(--border)', borderRadius: '12px', padding: '16px', transition: 'transform .2s ease,border-color .2s ease' }
+                const body = (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 700 }}>{p.title}</div>
+                      {p.link && (
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--muted)', flexShrink: 0 }}><path d="M7 17 17 7" /><path d="M7 7h10v10" /></svg>
+                      )}
+                    </div>
+                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '9px', lineHeight: 1.6, textWrap: 'pretty', flexGrow: 1 }}>{p.desc}</div>
+                  </>
+                )
+                return p.link ? (
+                  <a key={p.id} href={p.link} target="_blank" rel="noopener noreferrer" className="om-project-card" style={cardStyle}>{body}</a>
+                ) : (
+                  <div key={p.id} style={{ ...cardStyle, opacity: 0.72 }}>{body}</div>
+                )
+              })}
             </div>
           </div>
         )}
