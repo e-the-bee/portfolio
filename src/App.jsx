@@ -4,12 +4,19 @@ import ImageSlot from './components/ImageSlot.jsx'
 const DISCORD_ID = '1164594827883728987'
 
 const GAMES = [
-  { label: 'Minecraft', short: 'MC' },
-  { label: 'Geometry Dash', short: 'GD' },
-  { label: 'Rocket League', short: 'RL' },
-  { label: 'osu!', short: 'osu' },
-  { label: 'Add a game', short: '＋' },
-  { label: 'Add a game', short: '＋' },
+  { label: 'Minecraft', img: '/games/minecraft.jpg' },
+  { label: 'Geometry Dash', img: '/games/geometry-dash.jpg' },
+  { label: 'Rocket League', img: '/games/rocket-league.jpg' },
+  { label: 'osu!', img: '/games/osu.png', fit: 'contain', bg: '#ff77a9' },
+]
+
+// Real Spotify tracks — rendered as official embed players (30s preview for
+// anyone, full track for logged-in Spotify listeners). Cover art comes from
+// the embed, so no placeholder art is needed.
+const TRACKS = [
+  { id: '4rASiafr0DhS5Il3BPC49l', title: 'ungrateful', artist: 'gryp' },
+  { id: '0l3kMJXLcw4yaSOIU39Sq6', title: 'stairs', artist: 'design19' },
+  { id: '3Fwe3XoPOiyWUPYdBKMTqV', title: 'around the fur', artist: 'deftones' },
 ]
 
 const LANGS = [
@@ -369,7 +376,9 @@ export default function App() {
               <div className="om-marquee om-games" data-dir="1" data-speed="34" style={{ display: 'flex', gap: '14px', width: 'max-content', willChange: 'transform' }}>
                 {gamesLoop.map((game, i) => (
                   <div key={i} title={game.label} className="om-game-card" style={{ width: '118px', flexShrink: 0, borderRadius: '14px', overflow: 'hidden', background: 'var(--card2)', border: '1px solid var(--border)', transition: 'transform .25s ease' }}>
-                    <div style={{ height: '66px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,var(--accent),var(--accent2))', fontSize: '22px', fontWeight: 800, color: '#0b0d10' }}>{game.short}</div>
+                    <div style={{ aspectRatio: '3 / 4', background: game.bg || 'var(--card3)', overflow: 'hidden', padding: game.fit === 'contain' ? '16px' : 0 }}>
+                      <img src={game.img} alt={game.label} loading="lazy" draggable="false" style={{ width: '100%', height: '100%', objectFit: game.fit || 'cover', display: 'block', userSelect: 'none' }} />
+                    </div>
                     <div style={{ padding: '8px 11px', fontSize: '11.5px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{game.label}</div>
                   </div>
                 ))}
@@ -385,20 +394,23 @@ export default function App() {
               <span style={{ color: 'var(--accent)', fontSize: '15px' }}>♫</span>
               <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>Music Taste</h2>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {[
-                { id: 'album1', title: 'ungrateful', artist: 'gryp' },
-                { id: 'album2', title: 'stairs', artist: 'design19' },
-                { id: 'album3', title: 'around the fur', artist: 'deftones' },
-              ].map((a) => (
-                <div key={a.id} className="om-music-row" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '8px', borderRadius: '12px', background: 'var(--card2)', border: '1px solid var(--border)', transition: 'background .2s ease' }}>
-                  <ImageSlot shape="rounded" radius={8} placeholder="Cover" style={{ width: '52px', height: '52px', flexShrink: 0 }} />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{a.title}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '2px' }}>{a.artist}</div>
-                  </div>
-                </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {TRACKS.map((t) => (
+                <iframe
+                  key={t.id}
+                  title={`${t.title} — ${t.artist}`}
+                  src={`https://open.spotify.com/embed/track/${t.id}?utm_source=generator&theme=0`}
+                  width="100%"
+                  height="80"
+                  loading="lazy"
+                  frameBorder="0"
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  style={{ borderRadius: '12px', border: 'none', display: 'block', colorScheme: 'normal' }}
+                />
               ))}
+            </div>
+            <div style={{ fontSize: '11px', color: 'var(--muted)', marginTop: '12px', opacity: 0.7, lineHeight: 1.5 }}>
+              Hit play to preview each track. Log in to Spotify in your browser to hear the full song.
             </div>
           </div>
         )}
