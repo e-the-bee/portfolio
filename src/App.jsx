@@ -53,6 +53,27 @@ function hslStr(h, s, l) {
   return `hsl(${h.toFixed(0)} ${s.toFixed(0)}% ${l}%)`
 }
 
+function hslToHex(h, s, l) {
+  h = ((h % 360) + 360) % 360
+  s /= 100; l /= 100
+  const a = s * Math.min(l, 1 - l)
+  const f = (n) => {
+    const k = (n + h / 30) % 12
+    const c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))
+    return Math.round(255 * c).toString(16).padStart(2, '0')
+  }
+  return `#${f(0)}${f(8)}${f(4)}`
+}
+
+// Concrete banner colours derived from the same hue/sat the palette uses, so
+// the background effect matches the avatar. [primary, secondary, tertiary, dark].
+function paletteColorsFrom(h, s) {
+  const S = Math.round(Math.min(0.92, Math.max(0.5, s)) * 100)
+  return [hslToHex(h, S, 62), hslToHex(h + 28, S, 56), hslToHex(h + 335, S, 50), hslToHex(h, S, 15)]
+}
+const DEFAULT_BANNER_COLORS = ['#5865f2', '#7d5bf2', '#4e54e0', '#161a2e']
+const MONO_BANNER_COLORS = [hslToHex(225, 12, 78), hslToHex(225, 10, 56), hslToHex(225, 10, 40), hslToHex(225, 10, 13)]
+
 export default function App() {
   const rootRef = useRef(null)
   const rafRef = useRef(null)
@@ -67,6 +88,12 @@ export default function App() {
     decorationUrl: '',
     hasDecoration: false,
   })
+
+  // Colours handed to the banner effect. `ready` gates the effect so it mounts
+  // once with the correct (avatar-matched) colours instead of flashing defaults.
+  const [banner, setBanner] = useState({ ready: false, colors: DEFAULT_BANNER_COLORS })
+  const revealBanner = (colors, force) =>
+    setBanner((b) => (force || !b.ready ? { ready: true, colors } : b))
 
   // ── palette / status application on the root element ─────────────────────
   const applyStatus = (color) => {
@@ -105,10 +132,11 @@ export default function App() {
   // Results are cached per-URL in localStorage, so this is instant on revisit.
   const extractPalette = (url) => {
     getPaletteFromUrl(url).then((res) => {
-      if (!res) return                        // CORS / decode failure — keep defaults
-      if (res.mono) { applyMono(); return }    // greyscale avatar
+      if (!res) { revealBanner(DEFAULT_BANNER_COLORS, false); return } // load/CORS failure
+      if (res.mono) { applyMono(); revealBanner(MONO_BANNER_COLORS, true); return } // greyscale
       const sat = Math.min(0.9, Math.max(0.55, res.s))
       applyPalette(res.h, sat)
+      revealBanner(paletteColorsFrom(res.h, sat), true)
     })
   }
 
@@ -149,6 +177,7 @@ export default function App() {
     } catch (e) {
       setState((prev) => ({ ...prev, statusText: 'Offline', statusColor: '#747f8d' }))
       applyStatus('#747f8d')
+      revealBanner(DEFAULT_BANNER_COLORS, false)
     }
   }
 
@@ -192,7 +221,9 @@ export default function App() {
   useEffect(() => {
     fetchLanyard()
     startMarquees()
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+    // Fallback: if the avatar never resolves, show the effect with defaults.
+    const t = setTimeout(() => revealBanner(DEFAULT_BANNER_COLORS, false), 1200)
+    return () => { clearTimeout(t); if (rafRef.current) cancelAnimationFrame(rafRef.current) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -253,7 +284,7 @@ export default function App() {
         {/* ===== PROFILE CARD ===== */}
         <div style={{ animation: 'fadeUp .6s ease both', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 24px 60px -20px rgba(0,0,0,.7)' }}>
           <div style={{ height: '130px', background: 'linear-gradient(120deg, var(--accent), var(--accent2))', position: 'relative', overflow: 'hidden' }}>
-            <Banner />
+            <Banner ready={banner.ready} colors={banner.colors} />
             <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(400px 200px at 80% 120%, rgba(255,255,255,.18), transparent 60%)' }} />
             <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(180deg, transparent 55%, rgba(0,0,0,.28))' }} />
           </div>

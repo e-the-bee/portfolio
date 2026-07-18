@@ -17,12 +17,32 @@ const LOADERS = {
   Balatro: () => import('./backgrounds/Balatro.jsx'),
 }
 
-// Per-effect prop overrides (defaults are used for everything else).
-const PROPS = {
-  GridScan: { enableWebcam: false },
+const NAMES = Object.keys(LOADERS)
+
+function hexToRgb01(hex) {
+  const h = hex.replace('#', '')
+  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h
+  const n = parseInt(full, 16)
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]
 }
 
-const NAMES = Object.keys(LOADERS)
+// Map the avatar-derived palette [primary, secondary, tertiary, dark] onto each
+// effect's own colour props, so whichever effect shows matches the pfp.
+function colorProps(name, [c1, c2, c3, dark]) {
+  switch (name) {
+    case 'SideRays': return { rayColor1: c1, rayColor2: c2 }
+    case 'ColorBends': return { colors: [c1, c2, c3] }
+    case 'LineWaves': return { color1: c1, color2: c2, color3: c3 }
+    case 'SoftAurora': return { color1: c1, color2: c2 }
+    case 'Plasma': return { color: c1 }
+    case 'GridScan': return { linesColor: dark, scanColor: c1, enableWebcam: false }
+    case 'Dither': return { waveColor: hexToRgb01(c1) }
+    case 'RippleGrid': return { gridColor: c1 }
+    case 'ShapeGrid': return { borderColor: c1, hoverFillColor: c2 }
+    case 'Balatro': return { color1: c1, color2: c2, color3: dark }
+    default: return {}
+  }
+}
 
 // Max parallax shift in px. The effect layer is inset by OVERSCAN on every
 // side, so shifting up to SHIFT keeps its edges outside the frame — the
@@ -30,7 +50,7 @@ const NAMES = Object.keys(LOADERS)
 const SHIFT = 12
 const OVERSCAN = 26
 
-export default function Banner() {
+export default function Banner({ ready, colors = [] }) {
   // Pick one effect for the life of this mount (i.e. per page load).
   const name = useMemo(() => NAMES[Math.floor(Math.random() * NAMES.length)], [])
   const Effect = useMemo(() => lazy(LOADERS[name]), [name])
@@ -65,9 +85,12 @@ export default function Banner() {
           willChange: 'transform',
         }}
       >
-        <Suspense fallback={null}>
-          <Effect {...(PROPS[name] || {})} />
-        </Suspense>
+        {ready && (
+          <Suspense fallback={null}>
+            {/* keyed on colours so a late palette update remounts with the right tint */}
+            <Effect key={colors.join(',')} {...colorProps(name, colors)} />
+          </Suspense>
+        )}
       </div>
     </div>
   )
