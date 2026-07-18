@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
+import Banner from './components/Banner.jsx'
+import { getPaletteFromUrl } from './lib/okolors.js'
 
 const DISCORD_ID = '1164594827883728987'
 
@@ -51,23 +53,6 @@ function hslStr(h, s, l) {
   return `hsl(${h.toFixed(0)} ${s.toFixed(0)}% ${l}%)`
 }
 
-function rgbToHsl(r, g, b) {
-  r /= 255; g /= 255; b /= 255
-  const max = Math.max(r, g, b), min = Math.min(r, g, b)
-  let h = 0, s = 0, l = (max + min) / 2
-  if (max !== min) {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break
-      case g: h = (b - r) / d + 2; break
-      case b: h = (r - g) / d + 4; break
-    }
-    h *= 60
-  }
-  return [h, s, l]
-}
-
 export default function App() {
   const rootRef = useRef(null)
   const rafRef = useRef(null)
@@ -116,48 +101,15 @@ export default function App() {
     set('--border', `hsla(${H},12%,85%,0.09)`)
   }
 
+  // Palette generation via Okolors' approach (Oklab k-means), see lib/okolors.js.
+  // Results are cached per-URL in localStorage, so this is instant on revisit.
   const extractPalette = (url) => {
-    const img = new Image()
-    img.crossOrigin = 'anonymous'
-    img.onload = () => {
-      try {
-        const s = 64
-        const c = document.createElement('canvas')
-        c.width = s; c.height = s
-        const ctx = c.getContext('2d')
-        ctx.drawImage(img, 0, 0, s, s)
-        const data = ctx.getImageData(0, 0, s, s).data
-        // Bucket vibrant pixels by hue; weight by saturation so
-        // the accent reflects the most colorful dominant hue, not a gray average.
-        const buckets = {}
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3]
-          if (a < 130) continue
-          const [h, sat, l] = rgbToHsl(r, g, b)
-          if (sat < 0.18 || l < 0.15 || l > 0.9) continue // skip grays & extremes
-          const key = Math.round(h / 12) * 12
-          const w = sat * sat // emphasise saturated pixels
-          if (!buckets[key]) buckets[key] = { w: 0, hx: 0, hy: 0, smax: 0, ls: 0, ln: 0 }
-          const bk = buckets[key]
-          const rad = h * Math.PI / 180
-          bk.w += w
-          bk.hx += Math.cos(rad) * w
-          bk.hy += Math.sin(rad) * w
-          bk.smax = Math.max(bk.smax, sat)
-          bk.ls += l * w; bk.ln += w
-        }
-        let best = null
-        for (const k in buckets) {
-          if (!best || buckets[k].w > best.w) best = buckets[k]
-        }
-        if (!best) { applyMono(); return } // grayscale / monochrome avatar
-        let h = Math.atan2(best.hy, best.hx) * 180 / Math.PI
-        if (h < 0) h += 360
-        const sat = Math.min(0.9, Math.max(0.55, best.smax))
-        applyPalette(h, sat)
-      } catch (e) { /* CORS / decode failure — keep defaults */ }
-    }
-    img.src = url
+    getPaletteFromUrl(url).then((res) => {
+      if (!res) return                        // CORS / decode failure — keep defaults
+      if (res.mono) { applyMono(); return }    // greyscale avatar
+      const sat = Math.min(0.9, Math.max(0.55, res.s))
+      applyPalette(res.h, sat)
+    })
   }
 
   // ── lanyard fetch ────────────────────────────────────────────────────────
@@ -300,8 +252,10 @@ export default function App() {
 
         {/* ===== PROFILE CARD ===== */}
         <div style={{ animation: 'fadeUp .6s ease both', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 24px 60px -20px rgba(0,0,0,.7)' }}>
-          <div style={{ height: '130px', background: 'linear-gradient(120deg, var(--accent), var(--accent2))', position: 'relative' }}>
-            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(400px 200px at 80% 120%, rgba(255,255,255,.18), transparent 60%)' }} />
+          <div style={{ height: '130px', background: 'linear-gradient(120deg, var(--accent), var(--accent2))', position: 'relative', overflow: 'hidden' }}>
+            <Banner />
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'radial-gradient(400px 200px at 80% 120%, rgba(255,255,255,.18), transparent 60%)' }} />
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', background: 'linear-gradient(180deg, transparent 55%, rgba(0,0,0,.28))' }} />
           </div>
           <div style={{ padding: '0 22px 22px', position: 'relative' }}>
             <div style={{ position: 'absolute', top: '-46px', left: '22px' }}>
