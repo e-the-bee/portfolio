@@ -313,14 +313,25 @@ export default function App() {
 
         {/* ===== ABOUT ===== */}
         {active === 'about' && (
-          <div style={{ animation: 'fadeUp .45s ease both', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '20px 22px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '12px' }}>
+          <div style={{ animation: 'fadeUp .45s ease both', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '22px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '9px', marginBottom: '14px' }}>
               <span style={{ color: 'var(--accent)', fontSize: '15px' }}>✦</span>
               <h2 style={{ margin: 0, fontSize: '12px', fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--muted)' }}>About Me</h2>
             </div>
-            <p style={{ margin: 0, fontSize: '14px', lineHeight: 1.7, color: 'var(--text)', textWrap: 'pretty' }}>
-              placeholder — write a sentence or two about who you are, what you love building, and what you're into. This copy is fully editable, so drop your real bio here whenever you're ready.
-            </p>
+            <div style={{ textAlign: 'center', color: 'var(--accent)', opacity: 0.55, fontSize: '12px', letterSpacing: '3px', marginBottom: '16px' }}>*.·:·.☽✧ ✦ ✧☾.·:·.*</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', textAlign: 'center' }}>
+              {[
+                'I take commissions for minecraft mods, plugins, and websites. I also sometimes make mods and plugins for free.',
+                "Kindness toward all kinds of people is the goal — it isn't my place to punish others for their wrongdoings.",
+                "People are hypocrites, knowingly or not, but it takes courage to admit when you've been one and to make up for it.",
+              ].map((line, i) => (
+                <p key={i} style={{ margin: 0, fontSize: '14px', lineHeight: 1.7, color: 'var(--text)', textWrap: 'pretty' }}>{line}</p>
+              ))}
+            </div>
+            <div style={{ textAlign: 'center', marginTop: '18px' }}>
+              <a href="https://nohello.net/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', fontSize: '13px', borderBottom: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)', paddingBottom: '1px' }}>https://nohello.net/</a>
+            </div>
+            <div style={{ textAlign: 'center', color: 'var(--accent)', opacity: 0.55, fontSize: '12px', letterSpacing: '3px', marginTop: '16px' }}>*.·:·.☽✧ ✦ ✧☾.·:·.*</div>
           </div>
         )}
 
