@@ -1,0 +1,142 @@
+{
+  "profile": {
+    "discordId": "1164594827883728987",
+    "fallbackAvatar": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "fallbackName": "username",
+    "socials": [
+      { "title": "GitHub", "icon": "github", "url": "#" },
+      { "title": "Codeberg", "icon": "codeberg", "url": "https://codeberg.org/ethebee3" },
+      { "title": "Email", "icon": "email", "url": "#" }
+    ]
+  },
+
+  "theme": {
+    "bg": "#08090c",
+    "card": "#0f1116",
+    "card2": "#161922",
+    "card3": "#1c202b",
+    "accent": "#5865f2",
+    "accent2": "#7d5bf2",
+    "text": "#f4f5f7",
+    "muted": "#8a92a1",
+    "border": "rgba(255,255,255,.06)",
+    "status": "#43b581"
+  },
+
+  "status": {
+    "online": { "color": "#43b581", "label": "Online" },
+    "idle": { "color": "#faa61a", "label": "Idle" },
+    "dnd": { "color": "#f04747", "label": "Do Not Disturb" },
+    "offline": { "color": "#747f8d", "label": "Offline" },
+    "connecting": { "color": "#747f8d", "label": "Connecting…" }
+  },
+
+  "banner": {
+    "effects": [
+      "SideRays", "ColorBends", "LineWaves", "SoftAurora", "Plasma",
+      "GridScan", "Dither", "RippleGrid", "ShapeGrid", "Balatro"
+    ],
+    "parallaxShift": 12,
+    "overscan": 26,
+    "defaultColors": ["#5865f2", "#7d5bf2", "#4e54e0", "#161a2e"],
+    "revealTimeoutMs": 1200
+  },
+
+  "palette": {
+    "minSaturation": 0.55,
+    "maxSaturation": 0.9
+  },
+
+  "tabs": [
+    {
+      "id": "about",
+      "icon": "user",
+      "title": "About",
+      "type": "text",
+      "heading": "About Me",
+      "glyph": "✦",
+      "flourish": "*.·:·.☽✧ ✦ ✧☾.·:·.*",
+      "paragraphs": [
+        "I take commissions for minecraft mods, plugins, and websites. I also sometimes make mods and plugins for free.",
+        "Kindness toward all kinds of people is the goal — it isn't my place to punish others for their wrongdoings.",
+        "People are hypocrites, knowingly or not, but it takes courage to admit when you've been one and to make up for it."
+      ],
+      "links": [
+        { "label": "https://nohello.net/", "url": "https://nohello.net/" }
+      ]
+    },
+    {
+      "id": "skills",
+      "icon": "code",
+      "title": "Skills",
+      "type": "skills",
+      "heading": "Interests & Skills",
+      "glyph": "⌘",
+      "interests": ["Web Development", "UI / UX", "Open Source", "Game Dev"],
+      "languages": {
+        "marquee": { "speed": 38, "direction": -1 },
+        "items": [
+          { "key": "html", "label": "HTML", "link": "https://developer.mozilla.org/en-US/docs/Web/HTML" },
+          { "key": "css", "label": "CSS", "link": "https://developer.mozilla.org/en-US/docs/Web/CSS" },
+          { "key": "js", "label": "JavaScript", "link": "https://developer.mozilla.org/en-US/docs/Web/JavaScript" },
+          { "key": "react", "label": "React", "link": "https://react.dev/" },
+          { "key": "cpp", "label": "C++", "link": "https://isocpp.org/" },
+          { "key": "java", "label": "Java", "link": "https://www.java.com/" },
+          { "key": "python", "label": "Python", "link": "https://www.python.org/" },
+          { "key": "git", "label": "Git", "link": "https://git-scm.com/" },
+          { "key": "github", "label": "GitHub", "link": "https://github.com/" },
+          { "key": "mysql", "label": "MySQL", "link": "https://www.mysql.com/" }
+        ]
+      },
+      "games": {
+        "heading": "Games In Rotation",
+        "headingIcon": "gamepad",
+        "marquee": { "speed": 34, "direction": 1 },
+        "items": [
+          { "label": "Minecraft", "img": "/games/minecraft.jpg", "link": "https://www.minecraft.net/" },
+          { "label": "Geometry Dash", "img": "/games/geometry-dash.jpg", "link": "https://www.robtopgames.com/" },
+          { "label": "Rocket League", "img": "/games/rocket-league.jpg", "link": "https://www.rocketleague.com/" },
+          { "label": "osu!", "img": "/games/osu.png", "fit": "contain", "bg": "#ff77a9", "link": "https://osu.ppy.sh/" }
+        ]
+      }
+    },
+    {
+      "id": "music",
+      "icon": "music",
+      "title": "Music",
+      "type": "music",
+      "heading": "Music Taste",
+      "glyph": "♫",
+      "tracks": [
+        { "id": "4rASiafr0DhS5Il3BPC49l", "title": "ungrateful", "artist": "gryp" },
+        { "id": "0l3kMJXLcw4yaSOIU39Sq6", "title": "stairs", "artist": "design19" },
+        { "id": "3Fwe3XoPOiyWUPYdBKMTqV", "title": "around the fur", "artist": "deftones" }
+      ],
+      "note": "Hit play to preview each track. Log in to Spotify in your browser to hear the full song."
+    },
+    {
+      "id": "projects",
+      "icon": "grid",
+      "title": "Projects",
+      "type": "projects",
+      "heading": "Current Projects",
+      "glyph": "▶",
+      "columns": 2,
+      "items": [
+        {
+          "id": "src",
+          "title": "this site",
+          "desc": "The source behind this very page — a Vite + React single-page portfolio with a live Discord status, Spotify players and dynamic palette. Click through to read the code on Codeberg.",
+          "link": "https://codeberg.org/ethebee3/portfolio"
+        },
+        {
+          "id": "blanket",
+          "title": "blanket",
+          "desc": "coming soon"
+        }
+      ]
+    }
+  ],
+
+  "footer": "palette pulled live from your discord avatar via lanyard"
+}

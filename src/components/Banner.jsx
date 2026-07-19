@@ -1,8 +1,10 @@
 import { Suspense, lazy, useCallback, useMemo, useRef } from 'react'
 
-// Each of the ten ReactBits backgrounds the banner can show. Loaders are
+// Every ReactBits background the banner knows how to show. Loaders are
 // dynamic imports so only the randomly-chosen effect's chunk (and its WebGL
-// deps) is ever downloaded — the other nine cost nothing at runtime.
+// deps) is ever downloaded — the others cost nothing at runtime. Which of
+// these are actually in the rotation is controlled by `banner.effects` in
+// site.config.json.
 const LOADERS = {
   SideRays: () => import('./backgrounds/SideRays.jsx'),
   ColorBends: () => import('./backgrounds/ColorBends.jsx'),
@@ -16,8 +18,6 @@ const LOADERS = {
   ShapeGrid: () => import('./backgrounds/ShapeGrid.jsx'),
   Balatro: () => import('./backgrounds/Balatro.jsx'),
 }
-
-const NAMES = Object.keys(LOADERS)
 
 function hexToRgb01(hex) {
   const h = hex.replace('#', '')
@@ -44,31 +44,35 @@ function colorProps(name, [c1, c2, c3, dark]) {
   }
 }
 
-// Max parallax shift in px. The effect layer is inset by OVERSCAN on every
-// side, so shifting up to SHIFT keeps its edges outside the frame — the
-// effect moves with the cursor but never reveals a seam.
-const SHIFT = 12
-const OVERSCAN = 26
-
-export default function Banner({ ready, colors = [] }) {
-  // Pick one effect for the life of this mount (i.e. per page load).
-  const name = useMemo(() => NAMES[Math.floor(Math.random() * NAMES.length)], [])
-  const Effect = useMemo(() => lazy(LOADERS[name]), [name])
+export default function Banner({ ready, colors = [], effects, shift = 12, overscan = 26 }) {
+  // Pick one effect for the life of this mount (i.e. per page load), from the
+  // config's enabled list (unknown names are ignored).
+  const name = useMemo(() => {
+    const pool = (effects || Object.keys(LOADERS)).filter((n) => LOADERS[n])
+    return pool[Math.floor(Math.random() * pool.length)]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  const Effect = useMemo(() => (name ? lazy(LOADERS[name]) : null), [name])
   const layerRef = useRef(null)
 
+  // The effect layer is inset by `overscan` on every side, so shifting up to
+  // `shift` px toward the cursor keeps its edges outside the frame — the
+  // effect moves with the cursor but never reveals a seam.
   const onMove = useCallback((e) => {
     const r = e.currentTarget.getBoundingClientRect()
     const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2)
     const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2)
     if (layerRef.current) {
       layerRef.current.style.transform =
-        `translate(${(dx * SHIFT).toFixed(1)}px, ${(dy * SHIFT).toFixed(1)}px)`
+        `translate(${(dx * shift).toFixed(1)}px, ${(dy * shift).toFixed(1)}px)`
     }
-  }, [])
+  }, [shift])
 
   const onLeave = useCallback(() => {
     if (layerRef.current) layerRef.current.style.transform = 'translate(0,0)'
   }, [])
+
+  if (!Effect) return null
 
   return (
     <div
@@ -80,7 +84,7 @@ export default function Banner({ ready, colors = [] }) {
         ref={layerRef}
         style={{
           position: 'absolute',
-          inset: `-${OVERSCAN}px`,
+          inset: `-${overscan}px`,
           transition: 'transform .35s cubic-bezier(.22,.61,.36,1)',
           willChange: 'transform',
         }}
