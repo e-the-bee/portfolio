@@ -1,58 +1,17 @@
 import { Suspense, lazy, useCallback, useMemo, useRef } from 'react'
+import { EFFECT_LOADERS, effectColorProps } from './backgrounds/registry.js'
 
-// Every ReactBits background the banner knows how to show. Loaders are
-// dynamic imports so only the randomly-chosen effect's chunk (and its WebGL
-// deps) is ever downloaded — the others cost nothing at runtime. Which of
-// these are actually in the rotation is controlled by `banner.effects` in
-// site.config.json.
-const LOADERS = {
-  SideRays: () => import('./backgrounds/SideRays.jsx'),
-  ColorBends: () => import('./backgrounds/ColorBends.jsx'),
-  LineWaves: () => import('./backgrounds/LineWaves.jsx'),
-  SoftAurora: () => import('./backgrounds/SoftAurora.jsx'),
-  Plasma: () => import('./backgrounds/Plasma.jsx'),
-  // GridScan is a named-only export; webcam stays off so it never asks for a camera.
-  GridScan: () => import('./backgrounds/GridScan.jsx').then((m) => ({ default: m.GridScan })),
-  Dither: () => import('./backgrounds/Dither.jsx'),
-  RippleGrid: () => import('./backgrounds/RippleGrid.jsx'),
-  ShapeGrid: () => import('./backgrounds/ShapeGrid.jsx'),
-  Balatro: () => import('./backgrounds/Balatro.jsx'),
-}
-
-function hexToRgb01(hex) {
-  const h = hex.replace('#', '')
-  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h
-  const n = parseInt(full, 16)
-  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]
-}
-
-// Map the avatar-derived palette [primary, secondary, tertiary, dark] onto each
-// effect's own colour props, so whichever effect shows matches the pfp.
-function colorProps(name, [c1, c2, c3, dark]) {
-  switch (name) {
-    case 'SideRays': return { rayColor1: c1, rayColor2: c2 }
-    case 'ColorBends': return { colors: [c1, c2, c3] }
-    case 'LineWaves': return { color1: c1, color2: c2, color3: c3 }
-    case 'SoftAurora': return { color1: c1, color2: c2 }
-    case 'Plasma': return { color: c1 }
-    case 'GridScan': return { linesColor: dark, scanColor: c1, enableWebcam: false }
-    case 'Dither': return { waveColor: hexToRgb01(c1) }
-    case 'RippleGrid': return { gridColor: c1 }
-    case 'ShapeGrid': return { borderColor: c1, hoverFillColor: c2 }
-    case 'Balatro': return { color1: c1, color2: c2, color3: dark }
-    default: return {}
-  }
-}
-
+// The banner: picks one background effect at random per page load (from the
+// config's enabled list), tints it with the avatar palette, and gives it a
+// subtle cursor parallax that never reveals the layer's edges.
 export default function Banner({ ready, colors = [], effects, shift = 12, overscan = 26 }) {
-  // Pick one effect for the life of this mount (i.e. per page load), from the
-  // config's enabled list (unknown names are ignored).
+  // Pick one effect for the life of this mount (unknown names are ignored).
   const name = useMemo(() => {
-    const pool = (effects || Object.keys(LOADERS)).filter((n) => LOADERS[n])
+    const pool = (effects || Object.keys(EFFECT_LOADERS)).filter((n) => EFFECT_LOADERS[n])
     return pool[Math.floor(Math.random() * pool.length)]
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  const Effect = useMemo(() => (name ? lazy(LOADERS[name]) : null), [name])
+  const Effect = useMemo(() => (name ? lazy(EFFECT_LOADERS[name]) : null), [name])
   const layerRef = useRef(null)
 
   // The effect layer is inset by `overscan` on every side, so shifting up to
@@ -92,7 +51,7 @@ export default function Banner({ ready, colors = [], effects, shift = 12, oversc
         {ready && (
           <Suspense fallback={null}>
             {/* keyed on colours so a late palette update remounts with the right tint */}
-            <Effect key={colors.join(',')} {...colorProps(name, colors)} />
+            <Effect key={colors.join(',')} {...effectColorProps(name, colors)} />
           </Suspense>
         )}
       </div>

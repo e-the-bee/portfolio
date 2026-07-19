@@ -68,14 +68,26 @@ SVGs live in `src/assets/icons/` and are referenced by filename (e.g.
 
 ## Structure
 
+Each file has a single theme; helpers live in `src/lib`, UI in
+`src/components`.
+
 - `src/site.config.json` — **all content and tunables; edit this first.**
-- `src/App.jsx` — layout shell, Lanyard fetch, palette application, marquee
-  engine, and the per-type section renderers.
-- `src/components/Banner.jsx` — random background effect picker, palette
-  mapping per effect, cursor parallax.
-- `src/components/backgrounds/` — the ten ReactBits background components.
-- `src/components/Icon.jsx` — asset-file SVG loader.
-- `src/lib/okolors.js` — Oklab k-means palette extraction with localStorage
-  caching.
+- `src/App.jsx` — page state (presence, palette, active tab) and the layout
+  shell only.
+- `src/components/sections/` — one component per tab `type`
+  (`TextSection`, `SkillsSection`, `MusicSection`, `ProjectsSection`) plus
+  `registry.js`, which maps config types to renderers.
+- `src/components/Banner.jsx` — random effect pick + cursor parallax;
+  `src/components/backgrounds/registry.js` — effect loaders and the
+  palette-to-props mapping; `src/components/backgrounds/*.jsx` — the vendored
+  ReactBits effects.
+- `src/components/Icon.jsx`, `SectionHeading.jsx`, `ExternalLink.jsx`,
+  `Marquee.jsx` — small shared UI pieces.
+- `src/lib/color.js` — colour-space conversions (HSL/hex/RGB/Oklab).
+- `src/lib/palette.js` — extracted palette → CSS variables and banner colours.
+- `src/lib/okolors.js` — the Oklab k-means quantizer with localStorage cache.
+- `src/lib/lanyard.js` — Discord presence fetch + normalisation.
+- `src/lib/marquee.js` — the marquee animation engine.
+- `src/lib/styles.js` — shared inline style objects.
 - `src/index.css` — global styles, keyframes, and hover states.
 - `.woodpecker.yml` — Codeberg CI build-and-deploy pipeline.

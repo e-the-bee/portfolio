@@ -9,62 +9,12 @@
 // crate this reimplements its core method (Oklab + weighted k-means) in JS.
 // Results are cached in localStorage keyed by image URL, so the (already
 // cheap) k-means only ever runs once per avatar — no recompute lag on revisit.
+//
+// Colour-space conversions live in color.js; this file is the quantizer.
+
+import { oklabToRgb, rgbHex, rgbToHsl, rgbToOklab } from './color.js'
 
 const CACHE_PREFIX = 'okolors-v1:'
-
-// ── sRGB ⇄ Oklab (Björn Ottosson's matrices) ──────────────────────────────
-function srgbToLinear(c) {
-  c /= 255
-  return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
-}
-
-function linearToSrgb(c) {
-  const v = c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055
-  return Math.max(0, Math.min(255, Math.round(v * 255)))
-}
-
-function rgbToOklab(r, g, b) {
-  const lr = srgbToLinear(r), lg = srgbToLinear(g), lb = srgbToLinear(b)
-  const l = 0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb
-  const m = 0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb
-  const s = 0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb
-  const l_ = Math.cbrt(l), m_ = Math.cbrt(m), s_ = Math.cbrt(s)
-  return [
-    0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
-    1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
-    0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_,
-  ]
-}
-
-function oklabToRgb(L, a, b) {
-  const l_ = L + 0.3963377774 * a + 0.2158037573 * b
-  const m_ = L - 0.1055613458 * a - 0.0638541728 * b
-  const s_ = L - 0.0894841775 * a - 1.2914855480 * b
-  const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_
-  return [
-    linearToSrgb(+4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
-    linearToSrgb(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
-    linearToSrgb(-0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s),
-  ]
-}
-
-function rgbToHsl(r, g, b) {
-  r /= 255; g /= 255; b /= 255
-  const max = Math.max(r, g, b), min = Math.min(r, g, b)
-  let h = 0, s = 0
-  const l = (max + min) / 2
-  if (max !== min) {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break
-      case g: h = (b - r) / d + 2; break
-      default: h = (r - g) / d + 4; break
-    }
-    h *= 60
-  }
-  return [h, s, l]
-}
 
 // ── weighted k-means in Oklab ──────────────────────────────────────────────
 // points: Float array of [L,a,b] triples; weights: per-point pixel counts.
@@ -146,11 +96,6 @@ function collect(data) {
   return { points, weights }
 }
 
-function rgbHex(r, g, b) {
-  const to = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')
-  return `#${to(r)}${to(g)}${to(b)}`
-}
-
 // Analyse an ImageData buffer → { h, s, colors } where `colors` are the image's
 // actual dominant vibrant colours (up to 3, most prominent first) so effects
 // can reflect the real avatar palette, not just one rotated hue. Returns
@@ -187,10 +132,10 @@ function writeCache(url, val) {
 
 /**
  * Resolve a palette hint for an image URL.
- * @returns Promise<{h:number,s:number} | {mono:true} | null>
- *   - {h,s}   dominant vibrant hue (0-360) and saturation (0-1)
- *   - {mono}  greyscale image — caller should use a neutral palette
- *   - null    image failed to load / CORS-tainted
+ * @returns Promise<{h:number,s:number,colors:string[]} | {mono:true} | null>
+ *   - {h,s,colors}  dominant vibrant hue/sat plus up to 3 dominant hex colours
+ *   - {mono}        greyscale image — caller should use a neutral palette
+ *   - null          image failed to load / CORS-tainted
  * Cached in localStorage, so repeat calls for the same URL are instant.
  */
 export function getPaletteFromUrl(url) {

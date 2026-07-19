@@ -1,20 +1,22 @@
 // <Icon name="github" size={18} /> — renders an SVG from src/assets/icons/.
 //
-// Icons are kept as standalone .svg files and loaded through Vite's glob
-// import. They are injected inline (not via <img>) so `currentColor` still
-// works — every icon on the site tints itself from the CSS accent/muted
-// colour of its parent, which an <img> reference cannot do.
-// Add an icon by dropping a new .svg into src/assets/icons; its filename
-// (minus extension) becomes the `name`.
-const files = import.meta.glob('../assets/icons/*.svg', { query: '?raw', import: 'default', eager: true })
+// Icons are kept as standalone .svg files and imported explicitly below.
+// They are injected inline (not via <img>) so `currentColor` still works —
+// every icon on the site tints itself from the CSS accent/muted colour of
+// its parent, which an <img> reference cannot do.
+// To add an icon: drop the .svg in src/assets/icons, import it here, and add
+// it to the registry.
+import code from '../assets/icons/code.svg?raw'
+import codeberg from '../assets/icons/codeberg.svg?raw'
+import email from '../assets/icons/email.svg?raw'
+import external from '../assets/icons/external.svg?raw'
+import gamepad from '../assets/icons/gamepad.svg?raw'
+import github from '../assets/icons/github.svg?raw'
+import grid from '../assets/icons/grid.svg?raw'
+import music from '../assets/icons/music.svg?raw'
+import user from '../assets/icons/user.svg?raw'
 
-const registry = {}
-for (const path in files) {
-  const name = path.split('/').pop().replace(/\.svg$/, '')
-  registry[name] = files[path]
-}
-
-export const iconNames = Object.keys(registry)
+const registry = { code, codeberg, email, external, gamepad, github, grid, music, user }
 
 export default function Icon({ name, size = 18, style }) {
   const svg = registry[name]
