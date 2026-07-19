@@ -135,6 +135,21 @@
           "desc": "coming soon"
         }
       ]
+    },
+    {
+      "id": "dni",
+      "icon": "ban",
+      "title": "Do Not Interact",
+      "type": "text",
+      "heading": "Do Not Interact",
+      "headingIcon": "ban",
+      "paragraphs": [
+        "aggressive",
+        "under 15",
+        "politically driven",
+        "lolicons / child shit",
+        "lying with the intent of deceit or hurt"
+      ]
     }
   ],
 

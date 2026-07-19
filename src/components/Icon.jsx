@@ -6,6 +6,7 @@
 // its parent, which an <img> reference cannot do.
 // To add an icon: drop the .svg in src/assets/icons, import it here, and add
 // it to the registry.
+import ban from '../assets/icons/ban.svg?raw'
 import code from '../assets/icons/code.svg?raw'
 import codeberg from '../assets/icons/codeberg.svg?raw'
 import email from '../assets/icons/email.svg?raw'
@@ -16,7 +17,7 @@ import grid from '../assets/icons/grid.svg?raw'
 import music from '../assets/icons/music.svg?raw'
 import user from '../assets/icons/user.svg?raw'
 
-const registry = { code, codeberg, email, external, gamepad, github, grid, music, user }
+const registry = { ban, code, codeberg, email, external, gamepad, github, grid, music, user }
 
 export default function Icon({ name, size = 18, style }) {
   const svg = registry[name]
