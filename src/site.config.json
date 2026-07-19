@@ -33,8 +33,8 @@
 
   "banner": {
     "effects": [
-      "SideRays", "ColorBends", "LineWaves", "SoftAurora", "Plasma",
-      "GridScan", "Dither", "RippleGrid", "ShapeGrid", "Balatro"
+      "ColorBends", "LineWaves", "Plasma",
+      "Dither", "ShapeGrid", "Balatro"
     ],
     "parallaxShift": 12,
     "overscan": 26,
@@ -150,8 +150,27 @@
         "lolicons / child shit",
         "lying with the intent of deceit or hurt"
       ]
+    },
+    {
+      "id": "ai",
+      "icon": "robot",
+      "title": "AI Use Policy",
+      "type": "text",
+      "heading": "AI Use Policy",
+      "headingIcon": "robot",
+      "glyph": "⌬",
+      "paragraphs": [
+        "I use AI to speed up and streamline my own projects. Every part that matters: the functionality, the ideas, the research into game mechanics, the outside sources, comes from me. AI doesn't originate any of that.",
+        "What I use it for is the low-creativity work: organizing and refactoring code, making repetitive changes, and generating code from mock/flow code I've already written. Basically, the parts that don't require real thinking to finish.",
+        "AI is a tool, and I treat it like one. If a piece of a project needs creativity, problem-solving, or actual thought, I don't hand it off.",
+        "I don't judge how other people use AI, with a few exceptions. I don't respect:",
+        "Lying about using it",
+        "AI-generated art",
+        "\"Vibe-coded\" workflows where someone vaguely describes what they want and ships whatever comes out",
+        "Selling cheap AI-made products meant to trick the buyer"
+      ]
     }
   ],
 
-  "footer": "palette pulled live from your discord avatar via lanyard"
+  "footer": "made by yours truly"
 }

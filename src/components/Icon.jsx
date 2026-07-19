@@ -15,9 +15,10 @@ import gamepad from '../assets/icons/gamepad.svg?raw'
 import github from '../assets/icons/github.svg?raw'
 import grid from '../assets/icons/grid.svg?raw'
 import music from '../assets/icons/music.svg?raw'
+import robot from '../assets/icons/robot.svg?raw'
 import user from '../assets/icons/user.svg?raw'
 
-const registry = { ban, code, codeberg, email, external, gamepad, github, grid, music, user }
+const registry = { ban, code, codeberg, email, external, gamepad, github, grid, music, robot, user }
 
 export default function Icon({ name, size = 18, style }) {
   const svg = registry[name]
