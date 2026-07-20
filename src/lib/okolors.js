@@ -14,7 +14,27 @@
 
 import { oklabToRgb, rgbHex, rgbToHsl, rgbToOklab } from './color.js'
 
-const CACHE_PREFIX = 'okolors-v1:'
+// Bumped to v2 when the quantizer changed — old cached results (including
+// wrong `{mono:true}` verdicts) are keyed by the old prefix and ignored.
+const CACHE_PREFIX = 'okolors-v2:'
+
+// Pixels are downsampled to this square before quantizing. Big enough to keep
+// small but saturated details (graffiti, logos, eyes) alive in the histogram.
+const SAMPLE_SIZE = 64
+
+// Cluster count. Photographic avatars often have a large dull region (a wall,
+// a sky, skin) plus a small vivid one; too few clusters and k-means spends
+// them all subdividing the dull region by lightness, averaging every vivid
+// pixel away into grey. 20 leaves enough clusters for the minority colours.
+const K = 20
+
+// Deterministic PRNG (LCG). k-means seeding needs randomness, but results are
+// cached, so Math.random would freeze one arbitrary run's palette per visitor.
+// A fixed seed makes the palette a pure function of the image.
+function rng(seed) {
+  let s = seed >>> 0
+  return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296
+}
 
 // ── weighted k-means in Oklab ──────────────────────────────────────────────
 // points: Float array of [L,a,b] triples; weights: per-point pixel counts.
@@ -23,9 +43,10 @@ function kmeans(points, weights, k, iters) {
   if (n === 0) return []
   k = Math.min(k, n)
 
-  // k-means++-ish seeding: first centroid random, rest favour distant points.
+  // k-means++-ish seeding: first centroid pseudo-random, rest favour distant points.
+  const rand = rng(0x9e3779b9)
   const cen = []
-  cen.push(points[Math.floor(Math.random() * n)].slice())
+  cen.push(points[Math.floor(rand() * n)].slice())
   while (cen.length < k) {
     let best = null, bestD = -1
     for (let i = 0; i < n; i++) {
@@ -70,7 +91,13 @@ function kmeans(points, weights, k, iters) {
 
   return cen.map((c, i) => {
     const [r, g, b] = oklabToRgb(c[0], c[1], c[2])
-    return { L: c[0], a: c[1], b: c[2], r, g, b, weight: clusterW[i], chroma: Math.hypot(c[1], c[2]) }
+    return {
+      L: c[0], a: c[1], b: c[2], r, g, b,
+      weight: clusterW[i],
+      chroma: Math.hypot(c[1], c[2]),
+      // Oklab hue angle, used to keep the picked colours visually distinct.
+      hue: (Math.atan2(c[2], c[1]) * 180 / Math.PI + 360) % 360,
+    }
   }).filter((c) => c.weight > 0)
 }
 
@@ -102,20 +129,48 @@ function collect(data) {
 // { mono: true } if the image is essentially greyscale.
 function analyze(data) {
   const { points, weights } = collect(data)
-  const clusters = kmeans(points, weights, 6, 12)
+  const clusters = kmeans(points, weights, K, 14)
   if (!clusters.length) return { mono: true }
 
   const total = clusters.reduce((sum, c) => sum + c.weight, 0)
-  // Rank clusters on vibrancy × presence, dropping near-greys and extremes.
+  const maxChroma = Math.max(...clusters.map((c) => c.chroma))
+
+  // Only a genuinely colourless image is mono. Judging this on the image's
+  // peak chroma (not a fixed cut on every cluster) is what stops a muted but
+  // real palette — a photo, a dark or pastel avatar — reading as greyscale.
+  if (maxChroma < 0.02) return { mono: true }
+
+  // Vibrancy cut, relative to how colourful this image gets at all. A flat
+  // vivid avatar keeps a strict cut; a muted one still surfaces its best
+  // colours instead of failing the absolute threshold outright.
+  const cut = Math.max(0.022, maxChroma * 0.45)
+
+  // Rank on vibrancy × presence, dropping near-greys and lightness extremes.
+  // Chroma is weighted above share so a small vivid region beats a large dull
+  // one — the dull region is the background, the vivid one is the subject.
   const vibrant = clusters
-    .filter((c) => c.chroma >= 0.04 && c.L >= 0.18 && c.L <= 0.92)
-    .map((c) => ({ c, score: c.chroma * Math.sqrt(c.weight / total) }))
+    .filter((c) => c.chroma >= cut && c.L >= 0.18 && c.L <= 0.92)
+    .map((c) => ({ c, score: Math.pow(c.chroma, 1.4) * Math.pow(c.weight / total, 0.28) }))
     .sort((a, b) => b.score - a.score)
   if (!vibrant.length) return { mono: true }
 
-  const primary = vibrant[0].c
+  // Pick up to 3, skipping hues too close to one already taken, so the banner
+  // gets the avatar's distinct colours rather than three shades of one.
+  const picked = []
+  for (const { c } of vibrant) {
+    if (picked.length === 3) break
+    const clashes = picked.some((p) => Math.abs(((c.hue - p.hue + 540) % 360) - 180) <= 28)
+    if (!clashes) picked.push(c)
+  }
+  // If hue-dedupe left us short, top up with the best remaining unpicked ones.
+  for (const { c } of vibrant) {
+    if (picked.length === 3) break
+    if (!picked.includes(c)) picked.push(c)
+  }
+
+  const primary = picked[0]
   const [h, s] = rgbToHsl(primary.r, primary.g, primary.b)
-  const colors = vibrant.slice(0, 3).map(({ c }) => rgbHex(c.r, c.g, c.b))
+  const colors = picked.map((c) => rgbHex(c.r, c.g, c.b))
   return { h, s, colors }
 }
 
@@ -147,7 +202,7 @@ export function getPaletteFromUrl(url) {
     img.crossOrigin = 'anonymous'
     img.onload = () => {
       try {
-        const size = 48
+        const size = SAMPLE_SIZE
         const canvas = document.createElement('canvas')
         canvas.width = size; canvas.height = size
         const ctx = canvas.getContext('2d', { willReadFrequently: true })

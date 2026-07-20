@@ -4,7 +4,7 @@
 // tertiary, dark] quad handed to the banner effect. Pure functions — the
 // caller applies the returned vars to an element.
 
-import { hslStr, hslToHex } from './color.js'
+import { hexToRgb01, hslStr, hslToHex, rgbToHsl } from './color.js'
 
 // Neutral hue used when the avatar is greyscale.
 const MONO_HUE = 225
@@ -42,15 +42,25 @@ export function themeVars(theme) {
   return Object.fromEntries(Object.entries(theme).map(([key, value]) => ['--' + key, value]))
 }
 
+// Keep a colour's hue but push its saturation/lightness into a range the
+// banner shaders can actually show. Colours pulled from a photographic avatar
+// are often correct in hue yet too muted or too dark to read once a shader
+// blends them, which looks washed out rather than avatar-matched.
+function vivify(hex, S, L) {
+  const [r, g, b] = hexToRgb01(hex)
+  const [h] = rgbToHsl(r * 255, g * 255, b * 255)
+  return hslToHex(h, S, L)
+}
+
 // Build [primary, secondary, tertiary, dark] for the banner. Prefer the
 // avatar's *actual* dominant colours from Okolors so multi-colour effects look
 // like the pfp; fall back to hue-derived shades when only one colour is found.
 export function bannerColors(res, s) {
   const S = Math.round(Math.min(0.92, Math.max(0.5, s)) * 100)
   const cols = (res.colors || []).filter(Boolean)
-  const c1 = cols[0] || hslToHex(res.h, S, 62)
-  const c2 = cols[1] || hslToHex(res.h + 28, S, 56)
-  const c3 = cols[2] || hslToHex(res.h + 335, S, 50)
+  const c1 = cols[0] ? vivify(cols[0], S, 62) : hslToHex(res.h, S, 62)
+  const c2 = cols[1] ? vivify(cols[1], S, 56) : hslToHex(res.h + 28, S, 56)
+  const c3 = cols[2] ? vivify(cols[2], S, 50) : hslToHex(res.h + 335, S, 50)
   return [c1, c2, c3, hslToHex(res.h, S, 15)]
 }
 
