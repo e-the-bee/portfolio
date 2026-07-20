@@ -1,4 +1,5 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import AmbientAudio from './components/AmbientAudio.jsx'
 import Banner from './components/Banner.jsx'
 import ExternalLink from './components/ExternalLink.jsx'
 import Icon from './components/Icon.jsx'
@@ -17,6 +18,7 @@ import config from './site.config.json'
 const THEME_VARS = themeVars(config.theme)
 const DEFAULT_BANNER_COLORS = config.banner.defaultColors
 const BG = config.background || {}
+const AUDIO = config.audio || {}
 
 // Loaded on demand so the point-cloud's WebGL code isn't in the entry chunk.
 const Particles = lazy(() => import('./components/backgrounds/Particles.jsx'))
@@ -168,6 +170,14 @@ export default function App() {
         </div>
       )}
       {bg.vignette !== false && <div className="om-vignette" aria-hidden="true" />}
+
+      {/* Renders nothing until audio.src is set in site.config.json. */}
+      <AmbientAudio
+        src={AUDIO.src}
+        volume={AUDIO.volume ?? 0.3}
+        loop={AUDIO.loop ?? false}
+        showToggle={AUDIO.showToggle !== false}
+      />
 
       <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
