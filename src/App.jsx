@@ -6,7 +6,7 @@ import { SECTION_TYPES } from './components/sections/registry.js'
 import { fetchPresence } from './lib/lanyard.js'
 import { startMarquees } from './lib/marquee.js'
 import { getPaletteFromUrl } from './lib/okolors.js'
-import { MONO_BANNER_COLORS, bannerColors, monoVars, paletteVars, themeVars } from './lib/palette.js'
+import { MONO_BANNER_COLORS, bannerColors, blendDecoration, monoVars, paletteVars, themeVars } from './lib/palette.js'
 import config from './site.config.json'
 
 // All content and tunables (profile, socials, theme, banner effects, tabs and
@@ -43,14 +43,28 @@ export default function App() {
     for (const [key, value] of Object.entries(vars)) root.style.setProperty(key, value)
   }
 
+  // The avatar and its decoration are analysed separately, then blended. The
+  // decoration contributes at reduced strength — see blendDecoration for why
+  // an equal-terms merge would let it take the theme over outright.
+  const resolvePalette = (avatarUrl, decorationUrl) => {
+    const { decorationInfluence = 0.35, accentShift = 0.55 } = config.palette
+    if (!decorationUrl || decorationInfluence <= 0) {
+      return getPaletteFromUrl(avatarUrl).then((res) =>
+        (res && !res.mono ? blendDecoration(res, null, 0, accentShift) : res))
+    }
+    return Promise.all([getPaletteFromUrl(avatarUrl), getPaletteFromUrl(decorationUrl)])
+      .then(([avatar, deco]) =>
+        (avatar ? blendDecoration(avatar, deco, decorationInfluence, accentShift) : avatar))
+  }
+
   // Palette generation via Okolors' approach (Oklab k-means), see lib/okolors.js.
   // Results are cached per-URL in localStorage, so this is instant on revisit.
-  const extractPalette = (url) => {
-    getPaletteFromUrl(url).then((res) => {
+  const extractPalette = (url, decorationUrl) => {
+    resolvePalette(url, decorationUrl).then((res) => {
       if (!res) { revealBanner(DEFAULT_BANNER_COLORS, false); return } // load/CORS failure
       if (res.mono) { setRootVars(monoVars()); revealBanner(MONO_BANNER_COLORS, true); return } // greyscale
       const sat = Math.min(config.palette.maxSaturation, Math.max(config.palette.minSaturation, res.s))
-      setRootVars(paletteVars(res.h, sat))
+      setRootVars(paletteVars(res, sat))
       revealBanner(bannerColors(res, sat), true)
     })
   }
@@ -70,7 +84,7 @@ export default function App() {
         decorationUrl: presence.decorationUrl,
       }))
       setRootVars({ '--status': st.color })
-      extractPalette(presence.avatarUrl)
+      extractPalette(presence.avatarUrl, presence.decorationUrl)
     } catch (e) {
       const st = config.status.offline
       setState((prev) => ({ ...prev, statusText: st.label, statusColor: st.color }))
@@ -128,7 +142,7 @@ export default function App() {
 
         {/* ===== PROFILE CARD ===== */}
         <div style={{ animation: 'fadeUp .6s ease both', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 24px 60px -20px rgba(0,0,0,.7)' }}>
-          <div style={{ height: '130px', background: 'linear-gradient(120deg, var(--accent), var(--accent2))', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ height: '130px', background: 'linear-gradient(120deg, var(--accent), var(--accent2) 55%, var(--accent3, var(--accent2)))', position: 'relative', overflow: 'hidden' }}>
             <Banner
               ready={banner.ready}
               colors={banner.colors}

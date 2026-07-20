@@ -194,10 +194,21 @@ function writeCache(url, val) {
  * Cached in localStorage, so repeat calls for the same URL are instant.
  */
 export function getPaletteFromUrl(url) {
-  return new Promise((resolve) => {
-    const cached = readCache(url)
-    if (cached) { resolve(cached); return }
+  const cached = readCache(url)
+  if (cached) return Promise.resolve(cached)
+  return loadPixels(url).then((data) => {
+    if (!data) return null
+    const result = analyze(data)
+    writeCache(url, result)
+    return result
+  })
+}
 
+// Draw an image into a SAMPLE_SIZE square and hand back its pixels.
+// Resolves null on a load failure or a CORS-tainted canvas. Animated PNGs
+// (avatar decorations) contribute their first frame, which is all we need.
+function loadPixels(url) {
+  return new Promise((resolve) => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
@@ -207,13 +218,11 @@ export function getPaletteFromUrl(url) {
         canvas.width = size; canvas.height = size
         const ctx = canvas.getContext('2d', { willReadFrequently: true })
         ctx.drawImage(img, 0, 0, size, size)
-        const { data } = ctx.getImageData(0, 0, size, size)
-        const result = analyze(data)
-        writeCache(url, result)
-        resolve(result)
+        resolve(ctx.getImageData(0, 0, size, size).data)
       } catch { resolve(null) }
     }
     img.onerror = () => resolve(null)
     img.src = url
   })
 }
+

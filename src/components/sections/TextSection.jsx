@@ -4,7 +4,7 @@ import { cardStyle } from '../../lib/styles.js'
 
 const flourishStyle = {
   textAlign: 'center',
-  color: 'var(--accent)',
+  color: 'var(--accent2)',
   opacity: 0.55,
   fontSize: '12px',
   letterSpacing: '3px',
@@ -24,7 +24,7 @@ export default function TextSection({ tab }) {
       </div>
       {(tab.links || []).map((l) => (
         <div key={l.url} style={{ textAlign: 'center', marginTop: '18px' }}>
-          <ExternalLink href={l.url} style={{ color: 'var(--accent)', fontSize: '13px', borderBottom: '1px solid color-mix(in srgb, var(--accent) 40%, transparent)', paddingBottom: '1px' }}>
+          <ExternalLink href={l.url} style={{ color: 'var(--accent3, var(--accent))', fontSize: '13px', borderBottom: '1px solid color-mix(in srgb, var(--accent3, var(--accent)) 40%, transparent)', paddingBottom: '1px' }}>
             {l.label}
           </ExternalLink>
         </div>
