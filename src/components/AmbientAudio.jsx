@@ -2,88 +2,94 @@ import { useEffect, useRef, useState } from 'react'
 
 // Background music.
 //
-// Browsers block audible playback until the visitor has interacted with the
-// page, so "play on load" is best-effort: we try immediately, and if the
-// browser refuses we start on the first click/key/scroll instead. Chrome may
-// allow the immediate attempt on machines that visit this site often (its
-// media engagement heuristic), which is exactly why the gesture fallback has
-// to exist — the author's browser is the least representative one.
+// Playback is derived from three independent facts rather than tracked as one
+// "is playing" flag:
+//   started  — the visitor has done something that counts as consent to sound
+//   muted    — they turned it off (persisted, so it stays off next visit)
+//   focused  — this tab is visible AND the window has focus
+// The element plays only when all three allow it. Keeping them separate is
+// what stops refocusing the tab from overriding a deliberate mute.
 //
-// Renders nothing at all unless `audio.src` is set in site.config.json.
+// Renders nothing unless `audio.src` is set in site.config.json.
 const STORAGE_KEY = 'om-audio-muted'
 
-export default function AmbientAudio({ src, volume = 0.3, loop = false, showToggle = true }) {
+export default function AmbientAudio({
+  src,
+  volume = 0.1,
+  loop = false,
+  showToggle = true,
+  clickToStart = true,
+  pauseWhenUnfocused = true,
+  gateLabel = 'click anywhere to enter'
+}) {
   const audioRef = useRef(null)
-  // Visitors who muted it once shouldn't be re-blasted on every page load.
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem(STORAGE_KEY) === '1' } catch { return false }
   })
+  // With a click gate the visitor's click is the start signal. Without one we
+  // start immediately and rely on the browser (and the gesture fallback).
+  const [started, setStarted] = useState(!clickToStart)
+  const [focused, setFocused] = useState(true)
   const [playing, setPlaying] = useState(false)
   const [failed, setFailed] = useState(false)
 
+  // ── focus tracking ──────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!pauseWhenUnfocused) return
+    const sync = () => setFocused(document.hasFocus() && !document.hidden)
+    sync()
+    window.addEventListener('focus', sync)
+    window.addEventListener('blur', sync)
+    document.addEventListener('visibilitychange', sync)
+    return () => {
+      window.removeEventListener('focus', sync)
+      window.removeEventListener('blur', sync)
+      document.removeEventListener('visibilitychange', sync)
+    }
+  }, [pauseWhenUnfocused])
+
+  // ── playback follows intent ─────────────────────────────────────────────
   useEffect(() => {
     const el = audioRef.current
-    if (!el || !src || muted) return
-
+    if (!el || !src) return
     el.volume = volume
-    let cleanup = () => {}
 
-    const start = () => {
-      const attempt = el.play()
-      if (attempt && attempt.catch) {
-        attempt.then(() => setPlaying(true)).catch(() => {})
-      }
+    if (started && !muted && (!pauseWhenUnfocused || focused)) {
+      const p = el.play()
+      if (p && p.then) p.then(() => setPlaying(true)).catch(() => setPlaying(false))
+    } else {
+      el.pause()
+      setPlaying(false)
     }
+  }, [started, muted, focused, src, volume, pauseWhenUnfocused])
 
-    const onGesture = () => {
-      start()
-      cleanup()
-    }
-
-    const tryPlay = el.play()
-    if (tryPlay && tryPlay.then) {
-      tryPlay.then(() => setPlaying(true)).catch(() => {
-        // Autoplay refused — wait for the first interaction of any kind.
-        const opts = { once: true, passive: true }
-        window.addEventListener('pointerdown', onGesture, opts)
-        window.addEventListener('keydown', onGesture, opts)
-        window.addEventListener('scroll', onGesture, opts)
-        window.addEventListener('touchstart', onGesture, opts)
-        cleanup = () => {
-          window.removeEventListener('pointerdown', onGesture)
-          window.removeEventListener('keydown', onGesture)
-          window.removeEventListener('scroll', onGesture)
-          window.removeEventListener('touchstart', onGesture)
-        }
-      })
-    }
-
-    return () => cleanup()
-  }, [src, volume, muted])
-
-  // Keep the live element in step with the volume/mute state.
+  // Without a gate, autoplay may be refused — fall back to the first gesture.
   useEffect(() => {
+    if (clickToStart || muted || !src) return
     const el = audioRef.current
-    if (!el) return
-    el.volume = volume
-    if (muted) { el.pause(); setPlaying(false) }
+    if (!el || !el.paused) return
+
+    const onGesture = () => { setStarted(true); cleanup() }
+    const opts = { once: true, passive: true }
+    const events = ['pointerdown', 'keydown', 'scroll', 'touchstart']
+    events.forEach((e) => window.addEventListener(e, onGesture, opts))
+    const cleanup = () => events.forEach((e) => window.removeEventListener(e, onGesture))
+    return cleanup
+  }, [clickToStart, muted, src, playing])
+
+  useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, muted ? '1' : '0') } catch { /* private mode */ }
-  }, [muted, volume])
+  }, [muted])
 
   if (!src) return null
 
   const toggle = () => {
-    const el = audioRef.current
-    if (!el) return
-    if (muted || el.paused) {
-      setMuted(false)
-      el.volume = volume
-      const p = el.play()
-      if (p && p.then) p.then(() => setPlaying(true)).catch(() => setFailed(true))
-    } else {
-      setMuted(true)
-    }
+    if (playing) { setMuted(true); return }
+    setMuted(false)
+    setStarted(true)
   }
+
+  const showGate = clickToStart && !started && !muted && !failed
 
   return (
     <>
@@ -93,9 +99,20 @@ export default function AmbientAudio({ src, volume = 0.3, loop = false, showTogg
         loop={loop}
         preload="auto"
         onEnded={() => setPlaying(false)}
-        onError={() => setFailed(true)}
+        onError={() => { setFailed(true); setStarted(true) }}
       />
-      {showToggle && !failed && (
+
+      {showGate && (
+        // The whole overlay is the click target; the inner button exists so
+        // the gate is reachable and operable by keyboard too.
+        <div className="om-gate" onClick={() => setStarted(true)}>
+          <button className="om-gate-bubble" onClick={() => setStarted(true)}>
+            {gateLabel}
+          </button>
+        </div>
+      )}
+
+      {showToggle && !failed && !showGate && (
         <button
           onClick={toggle}
           className="om-audio-toggle"

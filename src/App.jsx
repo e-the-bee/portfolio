@@ -174,9 +174,12 @@ export default function App() {
       {/* Renders nothing until audio.src is set in site.config.json. */}
       <AmbientAudio
         src={AUDIO.src}
-        volume={AUDIO.volume ?? 0.3}
+        volume={AUDIO.volume ?? 0.1}
         loop={AUDIO.loop ?? false}
         showToggle={AUDIO.showToggle !== false}
+        clickToStart={AUDIO.clickToStart !== false}
+        pauseWhenUnfocused={AUDIO.pauseWhenUnfocused !== false}
+        gateLabel={AUDIO.gateLabel || 'click anywhere to enter'}
       />
 
       <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '18px' }}>

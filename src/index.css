@@ -34,6 +34,51 @@ a:hover { color: var(--accent2); }
   .om-vignette { display: none; }
 }
 
+/* Click-to-enter gate. Its whole job is to guarantee a user gesture before
+   audio starts, so playback never depends on autoplay permission. */
+.om-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(6, 7, 9, 0.86);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeUp .4s ease both;
+}
+
+/* Same expanding-ring pulse the status dot uses, scaled up for the bubble. */
+@keyframes gatePulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent3, var(--accent)); }
+  70%      { box-shadow: 0 0 0 14px transparent; }
+}
+
+.om-gate-bubble {
+  position: relative;
+  z-index: 1;
+  padding: 15px 28px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--border);
+  animation: gatePulse 2.4s infinite;
+  transition: transform .2s ease, border-color .2s ease, color .2s ease;
+}
+.om-gate:hover .om-gate-bubble {
+  transform: translateY(-2px);
+  border-color: var(--accent3, var(--accent));
+  color: var(--text);
+}
+
 /* Music mute/unmute control. */
 .om-audio-toggle {
   position: fixed;
