@@ -23,6 +23,20 @@ const AUDIO = config.audio || {}
 // Loaded on demand so the point-cloud's WebGL code isn't in the entry chunk.
 const Particles = lazy(() => import('./components/backgrounds/Particles.jsx'))
 
+// Shared by the social links and the copy-to-clipboard buttons, so the two
+// render identically whichever element type they end up as.
+const socialStyle = {
+  width: '36px',
+  height: '36px',
+  borderRadius: '10px',
+  background: 'var(--card2)',
+  border: '1px solid var(--border)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transition: 'all .2s ease',
+}
+
 export default function App() {
   const rootRef = useRef(null)
 
@@ -112,6 +126,27 @@ export default function App() {
   const active = state.activeTab
   const activeTab = config.tabs.find((t) => t.id === active)
   const Section = activeTab ? SECTION_TYPES[activeTab.type] : null
+
+  // Which social was just copied, so the button can confirm it briefly.
+  const [copied, setCopied] = useState('')
+  const copyToClipboard = async (text, key) => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      // clipboard API needs a secure context; fall back for plain http.
+      const ta = document.createElement('textarea')
+      ta.value = text
+      ta.setAttribute('readonly', '')
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.select()
+      try { document.execCommand('copy') } catch { /* nothing else to try */ }
+      document.body.removeChild(ta)
+    }
+    setCopied(key)
+    setTimeout(() => setCopied((c) => (c === key ? '' : c)), 1600)
+  }
 
   const bg = BG
   // The palette's dark shade — index 3 of the banner quad. Falls back to the
@@ -212,9 +247,25 @@ export default function App() {
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '14px', gap: '8px' }}>
               {config.profile.socials.map((s) => (
-                <ExternalLink key={s.title} href={s.url} title={s.title} className="om-social" style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--card2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .2s ease' }}>
-                  <Icon name={s.icon} size={18} />
-                </ExternalLink>
+                // A social with `copy` instead of `url` puts that text on the
+                // clipboard rather than navigating — used for the address, so
+                // it isn't a mailto: and isn't scrapeable as a link.
+                s.copy ? (
+                  <button
+                    key={s.title}
+                    onClick={() => copyToClipboard(s.copy, s.title)}
+                    className="om-social"
+                    title={copied === s.title ? 'Copied' : `Copy ${s.copy}`}
+                    aria-label={`Copy ${s.title.toLowerCase()} address`}
+                    style={{ ...socialStyle, cursor: 'pointer', fontFamily: 'inherit', color: copied === s.title ? 'var(--accent3, var(--accent))' : 'inherit' }}
+                  >
+                    {copied === s.title ? '✓' : <Icon name={s.icon} size={18} />}
+                  </button>
+                ) : (
+                  <ExternalLink key={s.title} href={s.url} title={s.title} className="om-social" style={socialStyle}>
+                    <Icon name={s.icon} size={18} />
+                  </ExternalLink>
+                )
               ))}
             </div>
 

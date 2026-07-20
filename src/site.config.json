@@ -4,9 +4,8 @@
     "fallbackAvatar": "https://cdn.discordapp.com/embed/avatars/0.png",
     "fallbackName": "username",
     "socials": [
-      { "title": "GitHub", "icon": "github", "url": "#" },
       { "title": "Codeberg", "icon": "codeberg", "url": "https://codeberg.org/ethebee3" },
-      { "title": "Email", "icon": "email", "url": "#" }
+      { "title": "Email", "icon": "email", "copy": "ethebee3@gmail.com" }
     ]
   },
 
