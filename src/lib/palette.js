@@ -15,6 +15,12 @@ function hueOf(hex) {
   return rgbToHsl(r * 255, g * 255, b * 255)[0]
 }
 
+// Lightness (0-1) of a hex colour.
+function lightOf(hex) {
+  const [r, g, b] = hexToRgb01(hex)
+  return rgbToHsl(r * 255, g * 255, b * 255)[2]
+}
+
 // Shortest signed distance from hue a to hue b, in -180..180.
 function hueDelta(a, b) {
   return ((b - a + 540) % 360) - 180
@@ -39,16 +45,19 @@ export function paletteVars(res, s) {
   const shifts = res.shifts || []
   const h = res.h
 
-  // Hue for accent slot i: toward cols[i] if we have it, else a fixed rotation
-  // so single-colour avatars still get some variation (the old behaviour).
+  // Hue for accent slot i: part-way toward cols[i] when we have it. When we
+  // don't, stay in the primary's own family — a large rotation here would
+  // invent a hue the image never contained (a blue avatar with no second
+  // colour used to produce a purple accent from a +28 rotation). The slots
+  // already differ in lightness below, so same-hue accents still read apart.
   const accentHue = (i, fallback) => {
     const hex = cols[i]
-    if (!hex) return (h + fallback) % 360
+    if (!hex) return (h + fallback + 360) % 360
     return hueMix(h, hueOf(hex), shifts[i] == null ? 0.55 : shifts[i])
   }
 
-  const h2 = accentHue(1, 28)
-  const h3 = accentHue(2, 335)
+  const h2 = accentHue(1, 10)
+  const h3 = accentHue(2, -12)
 
   return {
     '--accent': hslStr(h, sp, 62),
@@ -109,7 +118,12 @@ export function blendDecoration(base, deco, influence = 0.35, accentShift = 0.55
 
   const colors = [baseCols[0]]
   const shifts = [accentShift]
-  const distinct = (hex) => colors.every((c) => Math.abs(hueDelta(hueOf(hex), hueOf(c))) > 28)
+  // Two colours count as distinct if they differ in hue OR clearly in
+  // lightness. Hue alone throws away everything from a single-hue image (a
+  // blue avatar with a pale blue decoration), which then leaves empty accent
+  // slots for the fallback to fill with a hue that isn't in the image at all.
+  const distinct = (hex) => colors.every((c) =>
+    Math.abs(hueDelta(hueOf(hex), hueOf(c))) > 28 || Math.abs(lightOf(hex) - lightOf(c)) > 0.12)
 
   // Alternate avatar and decoration candidates so the palette shows both
   // sources rather than three variations of whichever had more colours.
@@ -145,9 +159,12 @@ function vivify(hex, S, L) {
 export function bannerColors(res, s) {
   const S = Math.round(Math.min(0.92, Math.max(0.5, s)) * 100)
   const cols = (res.colors || []).filter(Boolean)
+  // Same rule as the CSS accents: when a slot has no real colour, vary
+  // lightness within the primary's hue family rather than rotating away into
+  // a hue the avatar never had.
   const c1 = cols[0] ? vivify(cols[0], S, 62) : hslToHex(res.h, S, 62)
-  const c2 = cols[1] ? vivify(cols[1], S, 56) : hslToHex(res.h + 28, S, 56)
-  const c3 = cols[2] ? vivify(cols[2], S, 50) : hslToHex(res.h + 335, S, 50)
+  const c2 = cols[1] ? vivify(cols[1], S, 56) : hslToHex(res.h + 10, S, 48)
+  const c3 = cols[2] ? vivify(cols[2], S, 50) : hslToHex(res.h - 12, S, 70)
   return [c1, c2, c3, hslToHex(res.h, S, 15)]
 }
 
