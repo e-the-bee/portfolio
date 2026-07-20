@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import Banner from './components/Banner.jsx'
 import ExternalLink from './components/ExternalLink.jsx'
 import Icon from './components/Icon.jsx'
@@ -16,6 +16,10 @@ import config from './site.config.json'
 
 const THEME_VARS = themeVars(config.theme)
 const DEFAULT_BANNER_COLORS = config.banner.defaultColors
+const BG = config.background || {}
+
+// Loaded on demand so the point-cloud's WebGL code isn't in the entry chunk.
+const Particles = lazy(() => import('./components/backgrounds/Particles.jsx'))
 
 export default function App() {
   const rootRef = useRef(null)
@@ -107,6 +111,11 @@ export default function App() {
   const activeTab = config.tabs.find((t) => t.id === active)
   const Section = activeTab ? SECTION_TYPES[activeTab.type] : null
 
+  const bg = BG
+  // The palette's dark shade — index 3 of the banner quad. Falls back to the
+  // configured default before the avatar has been analysed.
+  const particleColor = banner.colors[3] || DEFAULT_BANNER_COLORS[3]
+
   const tabBtn = (on) => ({
     display: 'flex',
     alignItems: 'center',
@@ -128,6 +137,7 @@ export default function App() {
       ref={rootRef}
       style={{
         ...THEME_VARS,
+        '--vignette': bg.vignetteStrength ?? 0.55,
         minHeight: '100vh',
         width: '100%',
         display: 'flex',
@@ -138,7 +148,28 @@ export default function App() {
         color: 'var(--text)',
       }}
     >
-      <div style={{ width: '100%', maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      {/* ===== PAGE BACKGROUND ===== */}
+      {bg.particles !== false && (
+        <div className="om-particles" aria-hidden="true">
+          <Suspense fallback={null}>
+            {/* keyed on the colour so a late palette update restarts the field */}
+            <Particles
+              key={particleColor}
+              particleColors={[particleColor]}
+              particleCount={bg.particleCount ?? 800}
+              particleSpread={bg.particleSpread ?? 20}
+              speed={bg.particleSpeed ?? 0.3}
+              particleBaseSize={bg.particleBaseSize ?? 100}
+              moveParticlesOnHover
+              alphaParticles={false}
+              disableRotation
+            />
+          </Suspense>
+        </div>
+      )}
+      {bg.vignette !== false && <div className="om-vignette" aria-hidden="true" />}
+
+      <div style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: '500px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
         {/* ===== PROFILE CARD ===== */}
         <div style={{ animation: 'fadeUp .6s ease both', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 24px 60px -20px rgba(0,0,0,.7)' }}>
