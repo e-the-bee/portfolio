@@ -42,9 +42,10 @@ export default function App() {
   const [page, setPage] = useState('home')
   const [wipeKey, setWipeKey] = useState(0)
   const [song, setSong] = useState(0)
-  const [playing, setPlaying] = useState(false)
+  const [playing, setPlaying] = useState(true)
+  const [gated, setGated] = useState(false)
   const [pct, setPct] = useState(0)
-  const [volume, setVolume] = useState(0.5)
+  const [volume, setVolume] = useState(0.33)
   const audioRef = useRef(null)
   const [acc, setAcc] = useState(DEFAULT_ACC)
   const [me, setMe] = useState({
@@ -80,13 +81,29 @@ export default function App() {
     return () => { live = false }
   }, [song])
 
-  // Browsers block autoplay, so audio starts only after a click; a rejected play() flips the UI back to paused.
+  // Try to autoplay; a rejected play() flips the UI back to paused and arms the gesture listener below.
   useEffect(() => {
     const a = audioRef.current
     if (!a) return
-    if (playing) a.play().catch(() => setPlaying(false))
+    if (playing) a.play().then(() => setGated(false), () => { setPlaying(false); setGated(true) })
     else a.pause()
   }, [playing, song])
+
+  // Browsers block autoplay until the page gets a gesture: after a blocked attempt, start on the first
+  // click or key press anywhere (a control handles its own click).
+  useEffect(() => {
+    if (!gated) return undefined
+    const start = (e) => {
+      if (e.target instanceof Element && e.target.closest('.btn,.vol')) return
+      setPlaying(true)
+    }
+    window.addEventListener('pointerdown', start)
+    window.addEventListener('keydown', start)
+    return () => {
+      window.removeEventListener('pointerdown', start)
+      window.removeEventListener('keydown', start)
+    }
+  }, [gated])
 
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume
