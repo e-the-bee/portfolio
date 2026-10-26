@@ -4,8 +4,9 @@ import { fetchPresence } from './lib/lanyard.js'
 import { getPaletteFromUrl } from './lib/okolors.js'
 import { MONO_BANNER_COLORS, bannerColors } from './lib/palette.js'
 import { BIO, BIO_LINK, DNI, SONGS } from './content.js'
-import About from './pages/About.jsx'
-import Extras from './pages/Extras.jsx'
+// About and Extras are switched off for now; restore the imports, nav entries and routes below to bring them back.
+// import About from './pages/About.jsx'
+// import Extras from './pages/Extras.jsx'
 import Music from './pages/Music.jsx'
 import Projects from './pages/Projects.jsx'
 import config from './site.config.json'
@@ -18,8 +19,8 @@ const NAV = [
   { id: 'home', label: 'Home' },
   { id: 'music', label: 'Music' },
   { id: 'projects', label: 'Projects' },
-  { id: 'about', label: 'About' },
-  { id: 'extras', label: 'Extras' },
+  // { id: 'about', label: 'About' },
+  // { id: 'extras', label: 'Extras' },
 ]
 
 // The site accent follows the cover art of the current song.
@@ -157,9 +158,8 @@ export default function App() {
           <Hero me={me} acc={acc} />
         </>
       ) : page === 'music' ? <Music />
-        : page === 'projects' ? <Projects />
-        : page === 'about' ? <About />
-        : <Extras handle={me.userTag} />}
+        : <Projects />}
+      {/* page === 'about' ? <About /> : <Extras handle={me.userTag} /> */}
 
       {/* footer */}
       <div className="zig" aria-hidden="true" style={{ marginTop: 80 }} />
