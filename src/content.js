@@ -96,3 +96,15 @@ export const AI_POLICY_DISLIKES = [
   '"Vibe-coded" workflows where someone vaguely describes what they want and ships whatever comes out',
   'Selling cheap AI-made products meant to trick the buyer',
 ]
+
+// Codeberg account whose activity the Activity page shows, and repos left out of it.
+export const ACTIVITY_USER = 'ethebee3'
+export const ACTIVITY_HIDE_REPOS = ['pages']
+
+// Bio shown on the Discord profile card.
+export const DISCORD_BIO = [
+  'available times:',
+  '3pm to 7pm weekdays',
+  '12am to 7pm weekends',
+  'read social tab before contacting',
+]

@@ -3,10 +3,11 @@ import { hexToRgb01 } from './lib/color.js'
 import { fetchPresence } from './lib/lanyard.js'
 import { getPaletteFromUrl } from './lib/okolors.js'
 import { MONO_BANNER_COLORS, bannerColors } from './lib/palette.js'
-import { AI_POLICY, AI_POLICY_DISLIKES, BIO, BIO_LINK, DNI, SONGS } from './content.js'
-// About and Extras are switched off for now; restore the imports, nav entries and routes below to bring them back.
+import { BIO, BIO_LINK, DISCORD_BIO, SONGS } from './content.js'
+// About is switched off for now; restore the import, nav entry and route below to bring it back.
 // import About from './pages/About.jsx'
-// import Extras from './pages/Extras.jsx'
+import Activity from './pages/Activity.jsx'
+import Extras from './pages/Extras.jsx'
 import Music from './pages/Music.jsx'
 import Projects from './pages/Projects.jsx'
 import config from './site.config.json'
@@ -19,8 +20,9 @@ const NAV = [
   { id: 'home', label: 'Home' },
   { id: 'music', label: 'Music' },
   { id: 'projects', label: 'Projects' },
+  { id: 'activity', label: 'Activity' },
+  { id: 'extras', label: 'Extras' },
   // { id: 'about', label: 'About' },
-  // { id: 'extras', label: 'Extras' },
 ]
 
 // The site accent follows the cover art of the current song.
@@ -178,8 +180,10 @@ export default function App() {
           <Hero me={me} acc={acc} />
         </>
       ) : page === 'music' ? <Music />
-        : <Projects />}
-      {/* page === 'about' ? <About /> : <Extras handle={me.userTag} /> */}
+        : page === 'projects' ? <Projects />
+          : page === 'activity' ? <Activity />
+            : <Extras handle={me.userTag} />}
+      {/* page === 'about' && <About /> */}
 
       {/* footer */}
       <div className="zig" aria-hidden="true" style={{ marginTop: 80 }} />
@@ -325,31 +329,16 @@ function Hero({ me, acc }) {
                 <h3 className="hd" style={{ fontSize: 26 }}>{me.displayName}</h3>
                 <p style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>{me.userTag}</p>
               </div>
+              <div style={{ fontSize: 12, lineHeight: 1.6, borderTop: '2px dashed rgba(242,240,230,.35)', paddingTop: 12 }}>
+                <a href={BIO_LINK} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>nohello.net</a>
+                {DISCORD_BIO.map((t) => <div key={t}>{t}</div>)}
+              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 <span className="tag">{me.status.label}</span>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="box bk slam" style={{ marginTop: 36, padding: 22, display: 'flex', flexDirection: 'column', gap: 6, '--d': '280ms' }}>
-        <h3 className="hd" style={{ fontSize: 26, marginBottom: 6 }}>Do Not Interact</h3>
-        {DNI.map((t) => (
-          <div key={t} style={{ fontSize: 13, lineHeight: 1.5, padding: '7px 0', borderBottom: '2px dashed rgba(242,240,230,.35)' }}>{t}</div>
-        ))}
-      </div>
-
-      <div className="box pb slam" style={{ marginTop: 36, padding: 22, display: 'flex', flexDirection: 'column', gap: 12, '--d': '320ms' }}>
-        <h3 className="hd" style={{ fontSize: 26, marginBottom: 6 }}>AI Use Policy</h3>
-        {AI_POLICY.map((t) => (
-          <p key={t} style={{ fontSize: 13, lineHeight: 1.6 }}>{t}</p>
-        ))}
-        <ul style={{ margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {AI_POLICY_DISLIKES.map((t) => (
-            <li key={t} style={{ fontSize: 13, lineHeight: 1.5 }}>{t}</li>
-          ))}
-        </ul>
       </div>
     </div>
   )

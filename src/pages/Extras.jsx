@@ -1,11 +1,6 @@
 import { useState } from 'react'
-import { EMAIL, INTERESTS, LINKS } from '../content.js'
+import { AI_POLICY, AI_POLICY_DISLIKES, DNI, EMAIL, INTERESTS, LINKS } from '../content.js'
 import Title, { pageWrap } from './Title.jsx'
-
-const CELLS = Array.from({ length: 140 }, (_, i) => {
-  const col = Math.floor(i / 7)
-  return { cls: `cell l${(i * 7 + col * 3) % 5}`, delay: `${col * 45}ms` }
-})
 
 const sq = (bg) => ({ width: 12, height: 12, background: bg })
 const small = { fontSize: 15, padding: '6px 16px' }
@@ -42,14 +37,6 @@ export default function Extras({ handle }) {
         </div>
 
         <div style={{ flex: '1 1 380px', display: 'flex', flexDirection: 'column', gap: 30, minWidth: 0 }}>
-          <div className="box pb" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <h3 className="hd" style={{ fontSize: 24 }}>Activity</h3>
-            <div style={{ overflowX: 'auto', paddingBottom: 6 }}>
-              <div className="heat">
-                {CELLS.map((c, i) => <i key={i} className={c.cls} style={{ '--d': c.delay }} />)}
-              </div>
-            </div>
-          </div>
           <div className="box bk" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12 }}>
             <h3 className="hd" style={{ fontSize: 24 }}>Links</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>
@@ -60,6 +47,25 @@ export default function Extras({ handle }) {
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="box bk slam" style={{ marginTop: 36, padding: 22, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <h3 className="hd" style={{ fontSize: 26, marginBottom: 6 }}>Do Not Interact</h3>
+        {DNI.map((t) => (
+          <div key={t} style={{ fontSize: 13, lineHeight: 1.5, padding: '7px 0', borderBottom: '2px dashed rgba(242,240,230,.35)' }}>{t}</div>
+        ))}
+      </div>
+
+      <div className="box pb slam" style={{ marginTop: 36, padding: 22, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <h3 className="hd" style={{ fontSize: 26, marginBottom: 6 }}>AI Use Policy</h3>
+        {AI_POLICY.map((t) => (
+          <p key={t} style={{ fontSize: 13, lineHeight: 1.6 }}>{t}</p>
+        ))}
+        <ul style={{ margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {AI_POLICY_DISLIKES.map((t) => (
+            <li key={t} style={{ fontSize: 13, lineHeight: 1.5 }}>{t}</li>
+          ))}
+        </ul>
       </div>
     </div>
   )

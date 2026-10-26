@@ -114,6 +114,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 .trk{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:10px 16px 10px 26px;text-align:left;background:#0b0b0b;color:#f2f0e6;border:2px solid #f2f0e6}
 .trk.on{background:#f2f0e6;color:#0b0b0b;box-shadow:inset 8px 0 0 var(--acc)}
+.crow{display:flex;align-items:center;gap:12px;padding:9px 8px;border-bottom:2px dashed rgba(11,11,11,.3);text-decoration:none;color:inherit}
+.crow:hover,.crow:focus-visible{outline:none;background:var(--acc);color:var(--on)}
+.crow:hover .tag,.crow:focus-visible .tag{border-color:currentColor}
 .num{width:28px;height:28px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Anton',Impact,sans-serif;font-size:14px;border:2px solid currentColor}
 
 .eqb{display:block;width:12px;height:56px;background:#0b0b0b;transform-origin:bottom;animation:eq .5s steps(1,end) infinite}
