@@ -316,15 +316,6 @@ function Hero({ me, acc }) {
           <div key={t} style={{ fontSize: 13, lineHeight: 1.5, padding: '7px 0', borderBottom: '2px dashed rgba(242,240,230,.35)' }}>{t}</div>
         ))}
       </div>
-
-      <div className="slam" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginTop: 26, '--d': '340ms' }}>
-        <span className="tag">album palette</span>
-        <div style={{ display: 'flex', gap: 6 }}>
-          {[acc, BONE, INK, '#2a2a28'].map((c) => (
-            <div key={c} style={{ width: 40, height: 40, background: c, border: `3px solid ${BONE}` }} />
-          ))}
-        </div>
-      </div>
     </div>
   )
 }
