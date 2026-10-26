@@ -263,7 +263,7 @@ function Player({ player }) {
           </div>
 
           <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '4px 14px 4px 4px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '4px 14px 4px 10px' }}>
               {SONGS.map((s, i) => (
                 <button key={s.title} type="button" className={i === song ? 'jag trk on' : 'jag trk'} onClick={() => player.pick(i)}>
                   <span className="num">{i + 1}</span>
