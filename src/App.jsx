@@ -43,6 +43,7 @@ export default function App() {
   const [song, setSong] = useState(0)
   const [playing, setPlaying] = useState(false)
   const [pct, setPct] = useState(0)
+  const [volume, setVolume] = useState(0.5)
   const audioRef = useRef(null)
   const [acc, setAcc] = useState(DEFAULT_ACC)
   const [me, setMe] = useState({
@@ -86,6 +87,10 @@ export default function App() {
     else a.pause()
   }, [playing, song])
 
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume
+  }, [volume])
+
   const go = (id) => {
     if (id === page) return
     setPage(id)
@@ -97,6 +102,8 @@ export default function App() {
     song,
     playing,
     pct,
+    volume,
+    setVolume,
     cur: SONGS[song],
     pick: (i) => { setSong(i); setPlaying(true) },
     prev: () => { setSong((song + SONGS.length - 1) % SONGS.length); setPlaying(true) },
@@ -166,6 +173,23 @@ export default function App() {
   )
 }
 
+function Volume({ player }) {
+  return (
+    <label className="vol">
+      <span>Vol</span>
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value={player.volume}
+        aria-label="Volume"
+        onChange={(e) => player.setVolume(Number(e.target.value))}
+      />
+    </label>
+  )
+}
+
 function MiniPlayer({ player }) {
   const btn = { minHeight: 44, fontSize: 15, padding: '6px 16px' }
   return (
@@ -176,6 +200,7 @@ function MiniPlayer({ player }) {
         <button type="button" className="jag btn" style={btn} onClick={player.prev}>Prev</button>
         <button type="button" className="jag btn on" style={btn} onClick={player.toggle}>{player.playing ? 'Pause' : 'Play'}</button>
         <button type="button" className="jag btn" style={btn} onClick={player.next}>Next</button>
+        <Volume player={player} />
       </div>
     </div>
   )
@@ -206,6 +231,7 @@ function Player({ player }) {
                 <button type="button" className="jag btn" onClick={player.prev}>Prev</button>
                 <button type="button" className="jag btn on" onClick={player.toggle}>{playing ? 'Pause' : 'Play'}</button>
                 <button type="button" className="jag btn" onClick={player.next}>Next</button>
+                <Volume player={player} />
               </div>
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end', height: 56, flex: 'none' }} aria-hidden="true">
@@ -234,7 +260,7 @@ function Hero({ me, acc }) {
   const [first, ...rest] = me.displayName.split(' ')
   return (
     <div id="top" style={{ maxWidth: 1160, margin: '0 auto', padding: '36px 16px 0', position: 'relative', zIndex: 1 }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 36, alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 36, alignItems: 'stretch' }}>
         <div style={{ flex: '1 1 480px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 26 }}>
           <div className="slam" style={{ display: 'flex', flexWrap: 'wrap', gap: 34, alignItems: 'center', '--d': '100ms' }}>
             <div style={{ position: 'relative', width: 190, height: 190, margin: '20px 30px 20px 20px' }}>
@@ -257,26 +283,11 @@ function Hero({ me, acc }) {
             <a href={BIO_LINK} target="_blank" rel="noreferrer" style={{ fontSize: 13, alignSelf: 'flex-start', textDecoration: 'underline' }}>{BIO_LINK}</a>
           </div>
 
-          <div className="box bk slam" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 6, '--d': '280ms' }}>
-            <h3 className="hd" style={{ fontSize: 26, marginBottom: 6 }}>Do Not Interact</h3>
-            {DNI.map((t) => (
-              <div key={t} style={{ fontSize: 13, lineHeight: 1.5, padding: '7px 0', borderBottom: '2px dashed rgba(242,240,230,.35)' }}>{t}</div>
-            ))}
-          </div>
-
-          <div className="slam" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', '--d': '340ms' }}>
-            <span className="tag">album palette</span>
-            <div style={{ display: 'flex', gap: 6 }}>
-              {[acc, BONE, INK, '#2a2a28'].map((c) => (
-                <div key={c} style={{ width: 40, height: 40, background: c, border: `3px solid ${BONE}` }} />
-              ))}
-            </div>
-          </div>
         </div>
 
         {/* discord */}
-        <div className="slam" style={{ flex: '0 1 380px', minWidth: 260, width: '100%', '--d': '300ms' }}>
-          <div className="bk" style={{ boxShadow: '8px 8px 0 var(--acc)' }}>
+        <div className="slam" style={{ flex: '0 1 380px', minWidth: 260, width: '100%', display: 'flex', '--d': '300ms' }}>
+          <div className="bk" style={{ boxShadow: '8px 8px 0 var(--acc)', flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div className="rd" style={{ height: 100, padding: 10, position: 'relative', overflow: 'hidden', borderBottom: `3px solid ${BONE}` }}>
               <div className="halftone" aria-hidden="true" style={{ position: 'absolute', inset: 0, opacity: 0.9, background: `radial-gradient(circle,${INK} 26%,transparent 28%) 0 0/12px 12px` }} />
             </div>
@@ -296,6 +307,22 @@ function Hero({ me, acc }) {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="box bk slam" style={{ marginTop: 36, padding: 22, display: 'flex', flexDirection: 'column', gap: 6, '--d': '280ms' }}>
+        <h3 className="hd" style={{ fontSize: 26, marginBottom: 6 }}>Do Not Interact</h3>
+        {DNI.map((t) => (
+          <div key={t} style={{ fontSize: 13, lineHeight: 1.5, padding: '7px 0', borderBottom: '2px dashed rgba(242,240,230,.35)' }}>{t}</div>
+        ))}
+      </div>
+
+      <div className="slam" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', marginTop: 26, '--d': '340ms' }}>
+        <span className="tag">album palette</span>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {[acc, BONE, INK, '#2a2a28'].map((c) => (
+            <div key={c} style={{ width: 40, height: 40, background: c, border: `3px solid ${BONE}` }} />
+          ))}
         </div>
       </div>
     </div>

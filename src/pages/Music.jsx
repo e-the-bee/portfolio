@@ -1,4 +1,5 @@
-import { ALBUMS, SONGS, TOP_ARTISTS } from '../content.js'
+import { ALBUMS } from '../content.js'
+// import { SONGS, TOP_ARTISTS } from '../content.js'  // for the sidebar below
 import Title, { pageWrap } from './Title.jsx'
 
 export default function Music() {
@@ -14,9 +15,9 @@ export default function Music() {
           <Title o={7} brush="torn-r">Music lately</Title>
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, alignItems: 'stretch' }}>
-          <div style={{ flex: '2 1 460px', minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '30px 24px', padding: '6px 14px 6px 6px', alignSelf: 'flex-start' }}>
+          <div style={{ flex: '1 1 100%', minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: '30px 24px', padding: '6px 14px 6px 6px', alignSelf: 'flex-start' }}>
             {ALBUMS.map((s, i) => (
-              <div key={s.album} className="slam" style={{ display: 'flex', flexDirection: 'column', minWidth: 0, '--d': `${(i % 3) * 90}ms` }}>
+              <div key={s.album} className="slam" style={{ display: 'flex', flexDirection: 'column', minWidth: 0, '--d': `${(i % 4) * 90}ms` }}>
                 <div className="album">
                   <div className="vinyl" />
                   <div className="cover pb" style={{ border: '3px solid #0b0b0b', overflow: 'hidden' }}>
@@ -29,6 +30,7 @@ export default function Music() {
             ))}
           </div>
 
+          {/* Sidebar disabled for now: top artists + recently played. Restore it and set the albums grid back to flex '2 1 460px' / 3 columns.
           <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: 26 }}>
             <div className="box pb" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
               <h3 className="hd" style={{ fontSize: 24 }}>Top artists</h3>
@@ -52,6 +54,7 @@ export default function Music() {
               ))}
             </div>
           </div>
+          */}
         </div>
       </div>
     </>
