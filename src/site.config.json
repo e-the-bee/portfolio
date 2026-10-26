@@ -1,0 +1,20 @@
+{
+  "profile": {
+    "discordId": "1164594827883728987",
+    "fallbackAvatar": "https://cdn.discordapp.com/embed/avatars/0.png",
+    "fallbackName": "username"
+  },
+  "status": {
+    "online": { "color": "#43b581", "label": "Online" },
+    "idle": { "color": "#faa61a", "label": "Idle" },
+    "dnd": { "color": "#f04747", "label": "Do Not Disturb" },
+    "offline": { "color": "#747f8d", "label": "Offline" },
+    "connecting": { "color": "#747f8d", "label": "Connecting…" }
+  },
+  "palette": {
+    "minSaturation": 0.55,
+    "maxSaturation": 0.9,
+    "decorationInfluence": 0.35,
+    "accentShift": 0.55
+  }
+}
