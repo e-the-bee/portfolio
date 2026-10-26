@@ -1,0 +1,52 @@
+// Site copy and lists. Entries in [brackets] are placeholders to fill in.
+
+export const SONGS = [
+  { title: 'Stick N Move (Demo)', artist: 'Linkin Park', album: 'Hybrid Theory (20th Anniversary)', cover: '/covers/lp.jpg' },
+  { title: 'A Certain Shade of Green', artist: 'Incubus', album: 'S.C.I.E.N.C.E.', cover: '/covers/inc.jpg' },
+  { title: 'Snot', artist: 'Snot', album: 'Get Some', cover: '/covers/snot.jpg' },
+]
+
+export const TOP_ARTISTS = [
+  { name: '[Artist 1]', w: '92%' },
+  { name: '[Artist 2]', w: '74%' },
+  { name: '[Artist 3]', w: '61%' },
+  { name: '[Artist 4]', w: '48%' },
+  { name: '[Artist 5]', w: '30%' },
+]
+
+export const PROJECTS = [
+  { name: '[Project one]', status: 'live', cat: 'mods', tags: ['tag', 'tag'] },
+  { name: '[Project two]', status: 'in progress', cat: 'tools', tags: ['tag', 'tag'] },
+  { name: '[Project three]', status: 'archived', cat: 'web', tags: ['tag', 'tag'] },
+  { name: '[Project four]', status: 'idea', cat: 'other', tags: ['tag', 'tag'] },
+  { name: '[Project five]', status: 'live', cat: 'web', tags: ['tag', 'tag'] },
+  { name: '[Project six]', status: 'in progress', cat: 'mods', tags: ['tag', 'tag'] },
+]
+
+export const PROJECT_FILTERS = ['all', 'mods', 'tools', 'web', 'other']
+
+export const STATS = [
+  { v: '00', k: 'stat one' },
+  { v: '00', k: 'stat two' },
+  { v: '00', k: 'stat three' },
+  { v: '00', k: 'stat four' },
+]
+
+export const SKILLS = ['skill', 'skill', 'skill', 'skill', 'skill', 'skill', 'skill']
+
+export const TIMELINE = [{ year: '[year]' }, { year: '[year]' }, { year: '[year]' }]
+
+export const CHANGELOG = [
+  { v: 'v0.3', w: '80%' },
+  { v: 'v0.2', w: '65%' },
+  { v: 'v0.1', w: '50%' },
+]
+
+export const INTERESTS = 'music, code, [thing], [thing]'
+
+export const EMAIL = 'ethebee3@gmail.com'
+
+export const LINKS = [
+  { label: 'Codeberg', href: 'https://codeberg.org/ethebee3' },
+  { label: 'Discord', href: 'https://discord.com/users/1164594827883728987' },
+]
