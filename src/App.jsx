@@ -220,7 +220,7 @@ function Hero({ me, acc }) {
             <div style={{ position: 'relative', width: 190, height: 190, margin: '20px 30px 20px 20px' }}>
               <div className="burst" aria-hidden="true" style={{ position: 'absolute', inset: -44, background: 'var(--burst-k) 0 0/100% 100% no-repeat' }} />
               <div className="burst" aria-hidden="true" style={{ position: 'absolute', inset: -30, background: 'var(--burst-b) 0 0/100% 100% no-repeat', animationDirection: 'reverse' }} />
-              <img src={me.avatarUrl} alt="" style={{ transform: 'rotate(-4deg)', position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', border: `4px solid ${INK}` }} />
+              <img className="pfp" src="/pfp.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', border: `4px solid ${INK}` }} />
               <div aria-hidden="true" style={{ position: 'absolute', top: -16, left: 50, width: 84, height: 26, background: 'rgba(242,240,230,.85)', transform: 'rotate(-6deg)', zIndex: 5 }} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: '1 1 260px', minWidth: 0 }}>

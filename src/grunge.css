@@ -193,4 +193,6 @@ button{font:inherit;color:inherit;cursor:pointer}
 .jmp{display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%;min-height:140px;padding:16px 20px;text-align:left;background:#0b0b0b;color:#f2f0e6;border:3px solid #f2f0e6;box-shadow:6px 6px 0 var(--acc)}
 .jmp b{font-family:'Anton',Impact,sans-serif;font-weight:400;font-size:46px;line-height:1;text-transform:uppercase}
 .jmp i{font-style:normal;font-family:'Anton',Impact,sans-serif;font-size:16px;background:var(--acc);color:var(--on);padding:2px 10px}
+@keyframes pfpSway{0%{transform:rotate(-9deg)}50%{transform:rotate(3deg)}100%{transform:rotate(-9deg)}}
+.pfp{transform:rotate(-4deg);animation:pfpSway 5s steps(10) infinite}
 @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}.wipe,.fl{display:none}.cell{opacity:1}.type{width:auto}}
