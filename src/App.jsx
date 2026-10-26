@@ -3,7 +3,7 @@ import { hexToRgb01 } from './lib/color.js'
 import { fetchPresence } from './lib/lanyard.js'
 import { getPaletteFromUrl } from './lib/okolors.js'
 import { MONO_BANNER_COLORS, bannerColors } from './lib/palette.js'
-import { SONGS } from './content.js'
+import { BIO, BIO_LINK, DNI, SONGS } from './content.js'
 import About from './pages/About.jsx'
 import Extras from './pages/Extras.jsx'
 import Music from './pages/Music.jsx'
@@ -252,10 +252,16 @@ function Hero({ me, acc }) {
             </div>
           </div>
 
-          <div className="box pb slam" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 14, '--d': '220ms' }}>
-            <div className="ln" style={{ width: '94%' }} />
-            <div className="ln" style={{ width: '88%' }} />
-            <div className="ln" style={{ width: '62%' }} />
+          <div className="box pb slam" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12, '--d': '220ms' }}>
+            {BIO.map((t) => <p key={t} style={{ fontSize: 14, lineHeight: 1.6 }}>{t}</p>)}
+            <a href={BIO_LINK} target="_blank" rel="noreferrer" style={{ fontSize: 13, alignSelf: 'flex-start', textDecoration: 'underline' }}>{BIO_LINK}</a>
+          </div>
+
+          <div className="box bk slam" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 6, '--d': '280ms' }}>
+            <h3 className="hd" style={{ fontSize: 26, marginBottom: 6 }}>Do Not Interact</h3>
+            {DNI.map((t) => (
+              <div key={t} style={{ fontSize: 13, lineHeight: 1.5, padding: '7px 0', borderBottom: '2px dashed rgba(242,240,230,.35)' }}>{t}</div>
+            ))}
           </div>
 
           <div className="slam" style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', '--d': '340ms' }}>

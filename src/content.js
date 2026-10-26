@@ -63,3 +63,21 @@ export const LINKS = [
   { label: 'Codeberg', href: 'https://codeberg.org/ethebee3' },
   { label: 'Discord', href: 'https://discord.com/users/1164594827883728987' },
 ]
+
+// Copied from the old site's About and Do Not Interact tabs.
+export const BIO = [
+  'I make minecraft mods, plugins, and websites. I also sometimes make mods and plugins for free, contact me with cool ideas!',
+  "Kindness toward all kinds of people is the goal, it isn't my place to punish others for their wrongdoings.",
+  "People are hypocrites, knowingly or not, but it takes courage to admit when you've been one and to make up for it.",
+]
+export const BIO_LINK = 'https://nohello.net/'
+
+export const DNI = [
+  'Are aggressive or hostile',
+  'Are under 15',
+  'Makes everything political (having views is fine, keep it respectful)',
+  'CSA apologists / content',
+  'Lie with intent to deceive or hurt',
+  'Thrive on drama or stir up things for attention',
+  "Are highly prejudiced (opinions are fine, obsession isn't)",
+]
