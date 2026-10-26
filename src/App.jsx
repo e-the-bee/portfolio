@@ -297,7 +297,7 @@ function Hero({ me, acc }) {
                 <span className="wob">{first}{rest.length > 0 && <><br />{rest.join(' ')}</>}</span>
                 <i className="fl f1" /><i className="fl f2" /><i className="fl f3" /><i className="fl f4" /><i className="fl f5" />
               </h1>
-              <p className="mk" style={{ fontSize: 22, transform: 'rotate(-2deg)', background: INK, color: BONE, padding: '4px 12px', alignSelf: 'flex-start' }}>[tagline goes here]</p>
+              <p className="mk" style={{ fontSize: 22, transform: 'rotate(-2deg)', background: INK, color: BONE, padding: '4px 12px', alignSelf: 'flex-start' }}>Making noise, shipping code.</p>
             </div>
           </div>
 
