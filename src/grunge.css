@@ -90,7 +90,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 /* ---------- blocks ---------- */
 .box{position:relative;z-index:0}
-.pb{background:#f2f0e6;color:#0b0b0b;box-shadow:6px 6px 0 var(--acc)}
+.pb{background:#f2f0e6;color:#0b0b0b;box-shadow:calc(6px + var(--beat,0) * 5px) calc(6px + var(--beat,0) * 5px) 0 var(--acc)}
 .rd{background:var(--acc);color:var(--on)}
 .bk{background:#0b0b0b;color:#f2f0e6;border:3px solid #f2f0e6}
 .ln{height:10px;background:currentColor;opacity:.2}
@@ -119,6 +119,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .crow:hover .tag,.crow:focus-visible .tag{border-color:currentColor}
 .num{width:28px;height:28px;flex:none;display:flex;align-items:center;justify-content:center;font-family:'Anton',Impact,sans-serif;font-size:14px;border:2px solid currentColor}
 
+.live .eqb{animation:none;transform:scaleY(var(--bv,.5))}
 .eqb{display:block;width:12px;height:56px;background:#0b0b0b;transform-origin:bottom;animation:eq .5s steps(1,end) infinite}
 .prog{height:14px;background:rgba(11,11,11,.35);border:2px solid #0b0b0b}
 .prog i{display:block;height:100%;width:0;background:#0b0b0b}
@@ -204,3 +205,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .vol input::-moz-range-track{background:transparent}
 .vol input:focus-visible{outline:3px solid #f2f0e6;outline-offset:2px}
 @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}.wipe,.fl{display:none}.cell{opacity:1}.type{width:auto}}
+
+/* ---------- beat effects (--beat / --b0..4 are written by src/lib/beat.js while a song plays) ---------- */
+.g{--beat:0}
+.beatfx{position:fixed;inset:0;z-index:0;pointer-events:none;box-shadow:inset 0 0 150px 24px var(--acc);opacity:calc(var(--beat) * .5)}
+.beatbg{transform:scale(calc(1 + var(--beat) * .035))}
+.beatpop{transform:scale(calc(1 + var(--beat) * .08))}
+.logoW{transform:scale(calc(1 + var(--beat) * .14))}
+.halftone{opacity:calc(.6 + var(--beat) * .4)}

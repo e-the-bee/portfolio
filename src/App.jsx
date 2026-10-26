@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { hexToRgb01 } from './lib/color.js'
 import { fetchPresence } from './lib/lanyard.js'
+import { createBeat } from './lib/beat.js'
 import { getPaletteFromUrl } from './lib/okolors.js'
 import { MONO_BANNER_COLORS, bannerColors } from './lib/palette.js'
 import { BIO, BIO_LINK, DISCORD_BIO, SONGS } from './content.js'
@@ -49,6 +50,8 @@ export default function App() {
   const [pct, setPct] = useState(0)
   const [volume, setVolume] = useState(0.33)
   const audioRef = useRef(null)
+  const rootRef = useRef(null)
+  const beatRef = useRef(null)
   const [acc, setAcc] = useState(DEFAULT_ACC)
   const [me, setMe] = useState({
     avatarUrl: config.profile.fallbackAvatar,
@@ -87,9 +90,22 @@ export default function App() {
   useEffect(() => {
     const a = audioRef.current
     if (!a) return
-    if (playing) a.play().then(() => setGated(false), () => { setPlaying(false); setGated(true) })
-    else a.pause()
+    if (playing) {
+      a.play().then(() => {
+        setGated(false)
+        beatRef.current?.start()
+      }, () => { setPlaying(false); setGated(true) })
+    } else {
+      a.pause()
+      beatRef.current?.stop()
+    }
   }, [playing, song])
+
+  // Beat effects: the analyser writes --beat and --b0..4 straight onto the root element, no re-renders.
+  useEffect(() => {
+    beatRef.current = createBeat(audioRef.current, rootRef.current)
+    return () => beatRef.current?.stop()
+  }, [])
 
   // Browsers block autoplay until the page gets a gesture: after a blocked attempt, start on the first
   // click or key press anywhere (a control handles its own click).
@@ -134,7 +150,8 @@ export default function App() {
   const rootVars = { '--acc': acc, '--on': onAccent(acc), '--flick': '.36s' }
 
   return (
-    <div className="g" style={{ ...rootVars, minHeight: '100vh', position: 'relative', overflow: 'hidden', background: INK, paddingBottom: 24 }}>
+    <div ref={rootRef} className="g" style={{ ...rootVars, minHeight: '100vh', position: 'relative', overflow: 'hidden', background: INK, paddingBottom: 24 }}>
+      <div className="beatfx" aria-hidden="true" />
       <audio
         ref={audioRef}
         src={SONGS[song].audio}
@@ -146,9 +163,11 @@ export default function App() {
 
       {/* backdrop shapes */}
       <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 820, overflow: 'hidden', pointerEvents: 'none' }}>
+        <div className="beatbg" style={{ position: 'absolute', inset: 0 }}>
         <div className="deco d-slash" style={{ zIndex: 0, top: -70, left: '-9%', width: '67%', height: 640, '--r': '0deg', '--o': 0 }} />
         <div className="deco d-bar" style={{ zIndex: 0, top: 300, left: '36%', width: 520, height: 34, '--r': '-64deg', '--o': 2 }} />
         <div className="halftone" style={{ position: 'absolute', right: 0, top: 0, width: '48%', height: 440 }} />
+        </div>
       </div>
 
       {/* nav */}
@@ -244,7 +263,7 @@ function Player({ player }) {
       <div className="box rd slam" style={{ padding: 24, border: `3px solid ${INK}`, boxShadow: `8px 8px 0 ${BONE}`, '--d': '200ms' }}>
         <div className={playing ? 'player' : 'player paused'} style={{ display: 'flex', flexWrap: 'wrap', gap: 28, alignItems: 'stretch' }}>
           <div style={{ display: 'flex', gap: 18, alignItems: 'center', flex: '2 1 520px', minWidth: 0 }}>
-            <div className="bk" style={{ width: 124, height: 124, flex: 'none', transform: 'rotate(-3deg)', padding: 0, overflow: 'hidden' }}>
+            <div className="bk" style={{ width: 124, height: 124, flex: 'none', transform: 'rotate(-3deg) scale(calc(1 + var(--beat, 0) * .06))', padding: 0, overflow: 'hidden' }}>
               <img src={cur.cover} alt="" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'cover' }} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1, minWidth: 0 }}>
@@ -262,7 +281,7 @@ function Player({ player }) {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end', height: 56, flex: 'none' }} aria-hidden="true">
-              {['-.1s', '-.35s', '-.2s', '-.45s', '-.05s'].map((d) => <i key={d} className="eqb" style={{ animationDelay: d }} />)}
+              {['-.1s', '-.35s', '-.2s', '-.45s', '-.05s'].map((d, i) => <i key={d} className="eqb" style={{ animationDelay: d, '--bv': `var(--b${i}, .5)` }} />)}
             </div>
           </div>
 
@@ -290,7 +309,7 @@ function Hero({ me, acc }) {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 36, alignItems: 'stretch' }}>
         <div style={{ flex: '1 1 480px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 26 }}>
           <div className="slam" style={{ display: 'flex', flexWrap: 'wrap', gap: 34, alignItems: 'center', '--d': '100ms' }}>
-            <div style={{ position: 'relative', width: 190, height: 190, margin: '20px 30px 20px 20px' }}>
+            <div className="beatpop" style={{ position: 'relative', width: 190, height: 190, margin: '20px 30px 20px 20px' }}>
               <div className="burst" aria-hidden="true" style={{ position: 'absolute', inset: -44, background: 'var(--burst-k) 0 0/100% 100% no-repeat' }} />
               <div className="burst" aria-hidden="true" style={{ position: 'absolute', inset: -30, background: 'var(--burst-b) 0 0/100% 100% no-repeat', animationDirection: 'reverse' }} />
               <img className="pfp" src="/pfp.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', border: `4px solid ${INK}` }} />
