@@ -3,7 +3,7 @@ import { hexToRgb01 } from './lib/color.js'
 import { fetchPresence } from './lib/lanyard.js'
 import { getPaletteFromUrl } from './lib/okolors.js'
 import { MONO_BANNER_COLORS, bannerColors } from './lib/palette.js'
-import { BIO, BIO_LINK, DNI, SONGS } from './content.js'
+import { AI_POLICY, AI_POLICY_DISLIKES, BIO, BIO_LINK, DNI, SONGS } from './content.js'
 // About and Extras are switched off for now; restore the imports, nav entries and routes below to bring them back.
 // import About from './pages/About.jsx'
 // import Extras from './pages/Extras.jsx'
@@ -338,6 +338,18 @@ function Hero({ me, acc }) {
         {DNI.map((t) => (
           <div key={t} style={{ fontSize: 13, lineHeight: 1.5, padding: '7px 0', borderBottom: '2px dashed rgba(242,240,230,.35)' }}>{t}</div>
         ))}
+      </div>
+
+      <div className="box pb slam" style={{ marginTop: 36, padding: 22, display: 'flex', flexDirection: 'column', gap: 12, '--d': '320ms' }}>
+        <h3 className="hd" style={{ fontSize: 26, marginBottom: 6 }}>AI Use Policy</h3>
+        {AI_POLICY.map((t) => (
+          <p key={t} style={{ fontSize: 13, lineHeight: 1.6 }}>{t}</p>
+        ))}
+        <ul style={{ margin: 0, paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {AI_POLICY_DISLIKES.map((t) => (
+            <li key={t} style={{ fontSize: 13, lineHeight: 1.5 }}>{t}</li>
+          ))}
+        </ul>
       </div>
     </div>
   )

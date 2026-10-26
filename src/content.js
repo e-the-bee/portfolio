@@ -34,6 +34,7 @@ export const PROJECTS = [
   { name: '[Project four]', status: 'idea', cat: 'other', tags: ['tag', 'tag'] },
   { name: '[Project five]', status: 'live', cat: 'web', tags: ['tag', 'tag'] },
   { name: '[Project six]', status: 'in progress', cat: 'mods', tags: ['tag', 'tag'] },
+  { name: '[Project seven]', status: 'live', cat: 'tools', tags: ['tag', 'tag'] },
 ]
 
 export const PROJECT_FILTERS = ['all', 'mods', 'tools', 'web', 'other']
@@ -80,4 +81,18 @@ export const DNI = [
   'Lie with intent to deceive or hurt',
   'Thrive on drama or stir up things for attention',
   "Are highly prejudiced (opinions are fine, obsession isn't)",
+]
+
+// Copied from the old site's AI Use Policy tab.
+export const AI_POLICY = [
+  'I use AI to speed up and streamline my own projects. Every part that matters: the functionality, the ideas, the research into game mechanics, the outside sources, comes from me. AI doesn\'t originate any of that.',
+  "What I use it for is the low-creativity work: organizing and refactoring code, making repetitive changes, and generating code from mock/flow code I've already written. Basically, the parts that don't require real thinking to finish.",
+  "AI is a tool, and I treat it like one. If a piece of a project needs creativity, problem-solving, or actual thought, I don't hand it off.",
+  "I don't judge how other people use AI, with a few exceptions. I don't respect:",
+]
+export const AI_POLICY_DISLIKES = [
+  'Lying about using it',
+  'AI-generated art',
+  '"Vibe-coded" workflows where someone vaguely describes what they want and ships whatever comes out',
+  'Selling cheap AI-made products meant to trick the buyer',
 ]
