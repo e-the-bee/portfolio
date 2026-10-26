@@ -1,9 +1,22 @@
 // Site copy and lists. Entries in [brackets] are placeholders to fill in.
 
 export const SONGS = [
-  { title: 'Stick N Move (Demo)', artist: 'Linkin Park', album: 'Hybrid Theory (20th Anniversary)', cover: '/covers/lp.jpg' },
-  { title: 'A Certain Shade of Green', artist: 'Incubus', album: 'S.C.I.E.N.C.E.', cover: '/covers/inc.jpg' },
-  { title: 'Snot', artist: 'Snot', album: 'Get Some', cover: '/covers/snot.jpg' },
+  { title: 'Stick N Move (Demo)', artist: 'Linkin Park', album: 'Hybrid Theory (20th Anniversary)', cover: '/covers/lp.jpg', audio: '/audio/lp.mp3' },
+  { title: 'A Certain Shade of Green', artist: 'Incubus', album: 'S.C.I.E.N.C.E.', cover: '/covers/inc.jpg', audio: '/audio/inc.mp3' },
+  { title: 'Snot', artist: 'Snot', album: 'Get Some', cover: '/covers/snot.jpg', audio: '/audio/snot.mp3' },
+]
+
+// Shelf on the Music page: the playable songs first, then the rest of the collection.
+export const ALBUMS = [
+  ...SONGS,
+  { album: 'Adrenaline', artist: 'Deftones', cover: '/covers/adrenaline.jpg' },
+  { album: 'Make Yourself', artist: 'Incubus', cover: '/covers/makeyourself.jpg' },
+  { album: 'Around the Fur', artist: 'Deftones', cover: '/covers/aroundthefur.jpg' },
+  { album: 'Introduction to Mayhem', artist: 'Primer 55', cover: '/covers/mayhem.jpg' },
+  { album: 'Trigger', artist: 'Design19', cover: '/covers/trigger.jpg' },
+  { album: 'Issues', artist: 'Korn', cover: '/covers/issues.jpg' },
+  { album: 'Significant Other', artist: 'Limp Bizkit', cover: '/covers/significantother.jpg' },
+  { album: 'Requiem', artist: 'Korn', cover: '/covers/requiem.jpg' },
 ]
 
 export const TOP_ARTISTS = [

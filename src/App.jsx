@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { hexToRgb01 } from './lib/color.js'
 import { fetchPresence } from './lib/lanyard.js'
 import { getPaletteFromUrl } from './lib/okolors.js'
@@ -41,7 +41,9 @@ export default function App() {
   const [page, setPage] = useState('home')
   const [wipeKey, setWipeKey] = useState(0)
   const [song, setSong] = useState(0)
-  const [playing, setPlaying] = useState(true)
+  const [playing, setPlaying] = useState(false)
+  const [pct, setPct] = useState(0)
+  const audioRef = useRef(null)
   const [acc, setAcc] = useState(DEFAULT_ACC)
   const [me, setMe] = useState({
     avatarUrl: config.profile.fallbackAvatar,
@@ -76,6 +78,14 @@ export default function App() {
     return () => { live = false }
   }, [song])
 
+  // Browsers block autoplay, so audio starts only after a click; a rejected play() flips the UI back to paused.
+  useEffect(() => {
+    const a = audioRef.current
+    if (!a) return
+    if (playing) a.play().catch(() => setPlaying(false))
+    else a.pause()
+  }, [playing, song])
+
   const go = (id) => {
     if (id === page) return
     setPage(id)
@@ -86,6 +96,7 @@ export default function App() {
   const player = {
     song,
     playing,
+    pct,
     cur: SONGS[song],
     pick: (i) => { setSong(i); setPlaying(true) },
     prev: () => { setSong((song + SONGS.length - 1) % SONGS.length); setPlaying(true) },
@@ -97,6 +108,15 @@ export default function App() {
 
   return (
     <div className="g" style={{ ...rootVars, minHeight: '100vh', position: 'relative', overflow: 'hidden', background: INK, paddingBottom: 24 }}>
+      <audio
+        ref={audioRef}
+        src={SONGS[song].audio}
+        preload="metadata"
+        onLoadStart={() => setPct(0)}
+        onTimeUpdate={(e) => setPct(e.currentTarget.duration ? (e.currentTarget.currentTime / e.currentTarget.duration) * 100 : 0)}
+        onEnded={() => { setSong((song + 1) % SONGS.length); setPlaying(true) }}
+      />
+
       {/* backdrop shapes */}
       <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 820, overflow: 'hidden', pointerEvents: 'none' }}>
         <div className="deco d-slash" style={{ zIndex: 0, top: -70, left: '-9%', width: '67%', height: 640, '--r': '0deg', '--o': 0 }} />
@@ -181,7 +201,7 @@ function Player({ player }) {
                 {[1, 2, 3, 4, 5].map((n) => <i key={n} className={`cl c${n}`} aria-hidden="true">{cur.title}</i>)}
               </h2>
               <span style={{ fontSize: 13 }}>{cur.artist} · {cur.album}</span>
-              <div className={`prog s${song}`}><i key={song} /></div>
+              <div className="prog"><i style={{ width: `${player.pct}%`, animation: 'none' }} /></div>
               <div style={{ display: 'flex', flexWrap: 'nowrap', gap: 16 }}>
                 <button type="button" className="jag btn" onClick={player.prev}>Prev</button>
                 <button type="button" className="jag btn on" onClick={player.toggle}>{playing ? 'Pause' : 'Play'}</button>
@@ -250,7 +270,7 @@ function Hero({ me, acc }) {
 
         {/* discord */}
         <div className="slam" style={{ flex: '0 1 380px', minWidth: 260, width: '100%', '--d': '300ms' }}>
-          <div className="jag keep bk" style={{ boxShadow: '8px 8px 0 var(--acc)' }}>
+          <div className="bk" style={{ boxShadow: '8px 8px 0 var(--acc)' }}>
             <div className="rd" style={{ height: 100, padding: 10, position: 'relative', overflow: 'hidden', borderBottom: `3px solid ${BONE}` }}>
               <div className="halftone" aria-hidden="true" style={{ position: 'absolute', inset: 0, opacity: 0.9, background: `radial-gradient(circle,${INK} 26%,transparent 28%) 0 0/12px 12px` }} />
             </div>

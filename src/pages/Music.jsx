@@ -1,4 +1,4 @@
-import { SONGS, TOP_ARTISTS } from '../content.js'
+import { ALBUMS, SONGS, TOP_ARTISTS } from '../content.js'
 import Title, { pageWrap } from './Title.jsx'
 
 export default function Music() {
@@ -15,8 +15,8 @@ export default function Music() {
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, alignItems: 'stretch' }}>
           <div style={{ flex: '2 1 460px', minWidth: 0, display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: '30px 24px', padding: '6px 14px 6px 6px', alignSelf: 'flex-start' }}>
-            {SONGS.map((s, i) => (
-              <div key={s.album} className="slam" style={{ display: 'flex', flexDirection: 'column', minWidth: 0, '--d': `${i * 90}ms` }}>
+            {ALBUMS.map((s, i) => (
+              <div key={s.album} className="slam" style={{ display: 'flex', flexDirection: 'column', minWidth: 0, '--d': `${(i % 3) * 90}ms` }}>
                 <div className="album">
                   <div className="vinyl" />
                   <div className="cover pb" style={{ border: '3px solid #0b0b0b', overflow: 'hidden' }}>
@@ -54,7 +54,6 @@ export default function Music() {
           </div>
         </div>
       </div>
-      <div className="zig" aria-hidden="true" style={{ marginTop: 72 }} />
     </>
   )
 }

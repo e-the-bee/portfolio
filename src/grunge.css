@@ -41,13 +41,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bk .jag{--FC:var(--acc);--B1:var(--hv1b);--B2:var(--hv2b);--B3:var(--hv3b);--ht:var(--on)}
 .jag{position:relative;isolation:isolate;transform:var(--base)}
 .jag::before,.jag::after{content:"";position:absolute;z-index:-1;opacity:0;pointer-events:none;background-size:100% 100%;background-repeat:no-repeat}
-/* shapes reach well past the label so the text never touches a jagged edge */
-.jag::before{inset:-26px -46px -18px -34px;background-image:var(--B1)}
-.jag::after{inset:-20px -38px -26px -44px;background-color:var(--FC);-webkit-mask:var(--F1) 0 0/100% 100% no-repeat;mask:var(--F1) 0 0/100% 100% no-repeat}
-.jag.tag::before{inset:-16px -30px -12px -22px}
-.jag.tag::after{inset:-12px -26px -16px -28px}
-.jag.trk::before{inset:-20px -14px -14px -12px}
-.jag.trk::after{inset:-14px -10px -20px -16px}
+/* shapes overhang the element by a few px so the text never touches a jagged edge but neighbours stay clear */
+.jag::before{inset:-14px -16px -12px -12px;background-image:var(--B1)}
+.jag::after{inset:-11px -12px -14px -17px;background-color:var(--FC);-webkit-mask:var(--F1) 0 0/100% 100% no-repeat;mask:var(--F1) 0 0/100% 100% no-repeat}
+.jag.tag::before{inset:-9px -13px -7px -10px}
+.jag.tag::after{inset:-7px -10px -9px -13px}
+.jag.trk::before{inset:-9px -6px -7px -5px}
+.jag.trk::after{inset:-6px -4px -9px -7px}
 .jag:hover,.jag:focus-visible{outline:none;z-index:60}
 .slam:has(.jag:hover),.slam:has(.jag:focus-visible),.box:has(.jag:hover),.box:has(.jag:focus-visible),.nvrow:has(.jag:hover){position:relative;z-index:60}
 .jag:not(.keep):hover,.jag:not(.keep):focus-visible{background:transparent !important;border-color:transparent !important;box-shadow:none !important;color:var(--ht) !important}
@@ -55,8 +55,11 @@ button{font:inherit;color:inherit;cursor:pointer}
 .jag:hover::after,.jag:focus-visible::after{opacity:1;animation:shapeR var(--flick) steps(1,end) infinite}
 /* big blocks keep their body, the shapes peek out from behind them */
 .jag.keep{isolation:auto;transform:none}
-.jag.keep::before{inset:-20px -24px -18px -22px}
-.jag.keep::after{inset:-16px -20px -20px -26px}
+.jag.keep:hover,.jag.keep:focus-visible{z-index:auto}
+.jag.keep::before{inset:-24px -26px -22px -24px}
+.jag.keep::after{inset:-20px -22px -24px -28px}
+.jag.keep.card::before{inset:-26px -30px -24px -28px}
+.jag.keep.card::after{inset:-22px -26px -28px -32px}
 .jmp:hover i{background:#0b0b0b !important}
 
 /* logo backer */
@@ -79,9 +82,6 @@ button{font:inherit;color:inherit;cursor:pointer}
 @keyframes typing{to{width:var(--ch)}}
 @keyframes blink{50%{opacity:0}}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-@keyframes prog0{from{width:0}to{width:100%}}
-@keyframes prog1{from{width:0}to{width:100%}}
-@keyframes prog2{from{width:0}to{width:100%}}
 
 .slam{animation:slam .55s cubic-bezier(.2,.9,.3,1) backwards;animation-delay:var(--d,0ms)}
 .wob{display:inline-block;animation:wob .6s steps(1,end) infinite}
@@ -118,8 +118,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 .eqb{display:block;width:12px;height:56px;background:#0b0b0b;transform-origin:bottom;animation:eq .5s steps(1,end) infinite}
 .prog{height:14px;background:rgba(11,11,11,.35);border:2px solid #0b0b0b}
-.prog i{display:block;height:100%;width:0;background:#0b0b0b;animation-duration:30s;animation-timing-function:steps(30,end);animation-iteration-count:infinite}
-.s0 i{animation-name:prog0}.s1 i{animation-name:prog1}.s2 i{animation-name:prog2}
+.prog i{display:block;height:100%;width:0;background:#0b0b0b}
 
 .seg{height:16px;background:rgba(242,240,230,.15)}
 .seg i{display:block;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--acc) 0 10px,#0b0b0b 10px 13px);animation:bar .9s steps(10,end) forwards;animation-delay:var(--d,0ms)}
