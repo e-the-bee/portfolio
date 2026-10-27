@@ -164,15 +164,15 @@ export default function App() {
       {/* backdrop shapes */}
       <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 820, overflow: 'hidden', pointerEvents: 'none' }}>
         <div className="beatbg" style={{ position: 'absolute', inset: 0 }}>
-        <div className="deco d-slash" style={{ zIndex: 0, top: -70, left: '-9%', width: '67%', height: 640, '--r': '0deg', '--o': 0 }} />
-        <div className="deco d-bar" style={{ zIndex: 0, top: 300, left: '36%', width: 520, height: 34, '--r': '-64deg', '--o': 2 }} />
+        <div className="deco d-slash" style={{ zIndex: 0, top: -50, left: '-5%', width: '30%', height: 340, '--r': '0deg', '--o': 0 }} />
+        <div className="deco d-bar" style={{ zIndex: 0, top: 560, left: '-3%', width: 240, height: 80, '--r': '-8deg', '--o': 2 }} />
         <div className="halftone" style={{ position: 'absolute', right: 0, top: 0, width: '48%', height: 440 }} />
         </div>
       </div>
 
       {/* nav */}
       <div style={{ maxWidth: 1160, margin: '0 auto', padding: '22px 16px 0', position: 'relative', zIndex: 2 }}>
-        <div className="box slam" style={{ display: 'flex', flexWrap: 'nowrap', overflowX: 'auto', alignItems: 'center', gap: 22, padding: '22px 24px' }}>
+        <div className="box slam" style={{ display: 'flex', flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden', alignItems: 'center', gap: 22, padding: '22px 24px' }}>
           <div className="logoW">
             <div className="sh" aria-hidden="true" />
             <svg className="wob" viewBox="0 0 60 60" width="60" height="60" role="img" aria-label="Logo" style={{ display: 'block', overflow: 'visible' }}>
@@ -256,10 +256,9 @@ function Player({ player }) {
   const { cur, song, playing } = player
   return (
     <div id="player" style={{ maxWidth: 1160, margin: '0 auto', padding: '36px 16px 0', position: 'relative', zIndex: 1 }}>
-      <div className="deco d-slash" aria-hidden="true" style={{ top: -14, right: -70, width: 380, height: 110, '--r': '-6deg', '--o': 1 }} />
-      <div className="deco d-rip" aria-hidden="true" style={{ top: 140, left: -80, width: 300, height: 280, '--r': '3deg', '--o': 3 }} />
-      <div className="deco d-tri b" aria-hidden="true" style={{ bottom: -26, right: '7%', width: 110, height: 110, '--r': '12deg', '--o': 4 }} />
-      <div className="deco d-dots" aria-hidden="true" style={{ bottom: -10, left: '6%', width: 240, height: 120, '--o': 2 }} />
+      <div className="deco d-slash" aria-hidden="true" style={{ top: -14, right: -70, width: 300, height: 120, '--r': '-6deg', '--o': 1 }} />
+      <div className="deco d-rip" aria-hidden="true" style={{ top: '52%', left: -80, width: 300, height: 180, '--r': '3deg', '--o': 3 }} />
+      <div className="deco d-tri b" aria-hidden="true" style={{ bottom: -26, right: '7%', width: 120, height: 120, '--r': '12deg', '--o': 4 }} />
       <div className="box rd slam" style={{ padding: 24, border: `3px solid ${INK}`, boxShadow: `8px 8px 0 ${BONE}`, '--d': '200ms' }}>
         <div className={playing ? 'player' : 'player paused'} style={{ display: 'flex', flexWrap: 'wrap', gap: 28, alignItems: 'stretch' }}>
           <div style={{ display: 'flex', gap: 18, alignItems: 'center', flex: '2 1 520px', minWidth: 0 }}>
@@ -306,6 +305,8 @@ function Hero({ me, acc }) {
   const [first, ...rest] = me.displayName.split(' ')
   return (
     <div id="top" style={{ maxWidth: 1160, margin: '0 auto', padding: '36px 16px 0', position: 'relative', zIndex: 1 }}>
+      <div className="deco d-burst b" aria-hidden="true" style={{ top: '46%', right: -60, width: 200, height: 200, '--r': '-8deg', '--o': 1 }} />
+      <div className="deco d-dots" aria-hidden="true" style={{ bottom: '4%', left: '3%', width: 220, height: 130, '--o': 2 }} />
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 36, alignItems: 'stretch' }}>
         <div style={{ flex: '1 1 480px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 26 }}>
           <div className="slam" style={{ display: 'flex', flexWrap: 'wrap', gap: 34, alignItems: 'center', '--d': '100ms' }}>

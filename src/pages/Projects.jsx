@@ -13,10 +13,9 @@ export default function Projects() {
 
   return (
     <div id="projects" style={pageWrap(64)}>
-      <div className="deco d-burst" aria-hidden="true" style={{ top: -30, left: -80, width: 240, height: 240, '--r': '-6deg', '--o': 2 }} />
-      <div className="deco d-rip" aria-hidden="true" style={{ top: '38%', right: -100, width: 430, height: 250, '--r': '-3deg', '--o': 5 }} />
-      <div className="deco d-slash b" aria-hidden="true" style={{ bottom: 60, left: -50, width: 420, height: 96, '--r': '5deg', '--o': 1 }} />
-      <div className="deco d-scratch" aria-hidden="true" style={{ top: 250, right: '7%', width: 210, height: 170, '--o': 3 }} />
+      <div className="deco d-burst" aria-hidden="true" style={{ top: '3%', left: -70, width: 200, height: 200, '--r': '-6deg', '--o': 2 }} />
+      <div className="deco d-rip" aria-hidden="true" style={{ top: '42%', right: -80, width: 300, height: 180, '--r': '-3deg', '--o': 5 }} />
+      <div className="deco d-slash b" aria-hidden="true" style={{ bottom: '4%', left: -60, width: 300, height: 120, '--r': '5deg', '--o': 1 }} />
       <div className="slam" style={{ display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 28, alignItems: 'flex-start' }}>
         <Title o={13} brush="brush-r">Projects</Title>
       </div>

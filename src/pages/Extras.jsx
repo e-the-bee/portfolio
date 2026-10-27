@@ -17,10 +17,9 @@ export default function Extras({ handle }) {
 
   return (
     <div id="extras" style={pageWrap(80)}>
-      <div className="deco d-slash" aria-hidden="true" style={{ top: 30, left: -70, width: 430, height: 100, '--r': '-5deg', '--o': 3 }} />
-      <div className="deco d-burst b" aria-hidden="true" style={{ bottom: 30, right: -50, width: 230, height: 230, '--r': '-8deg', '--o': 1 }} />
-      <div className="deco d-rip" aria-hidden="true" style={{ top: '46%', left: -70, width: 340, height: 200, '--r': '3deg', '--o': 5 }} />
-      <div className="deco d-tri r" aria-hidden="true" style={{ top: 200, right: '6%', width: 100, height: 100, '--r': '-10deg', '--o': 2 }} />
+      <div className="deco d-slash" aria-hidden="true" style={{ top: '3%', left: -70, width: 300, height: 120, '--r': '-5deg', '--o': 3 }} />
+      <div className="deco d-rip" aria-hidden="true" style={{ top: '46%', right: -80, width: 300, height: 180, '--r': '3deg', '--o': 5 }} />
+      <div className="deco d-burst b" aria-hidden="true" style={{ bottom: '2%', left: -50, width: 200, height: 200, '--r': '-8deg', '--o': 1 }} />
       <div className="slam" style={{ display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 34, alignItems: 'flex-start' }}>
         <Title o={22} brush="brush-r">Extras</Title>
       </div>

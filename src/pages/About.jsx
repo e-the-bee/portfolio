@@ -4,10 +4,9 @@ import Title, { pageWrap } from './Title.jsx'
 export default function About() {
   return (
     <div id="about" style={pageWrap(80)}>
-      <div className="deco d-shard r" aria-hidden="true" style={{ top: 20, right: -30, width: 250, height: 270, '--r': '-5deg', '--o': 4 }} />
-      <div className="deco d-rip" aria-hidden="true" style={{ top: '48%', left: -100, width: 390, height: 210, '--r': '-2deg', '--o': 2 }} />
-      <div className="deco d-bar r" aria-hidden="true" style={{ bottom: 80, right: -70, width: 470, height: 72, '--r': '4deg', '--o': 6 }} />
-      <div className="deco d-dots" aria-hidden="true" style={{ top: '30%', right: '12%', width: 200, height: 150, '--o': 1 }} />
+      <div className="deco d-shard r" aria-hidden="true" style={{ top: '4%', right: -30, width: 190, height: 210, '--r': '-5deg', '--o': 4 }} />
+      <div className="deco d-rip" aria-hidden="true" style={{ top: '46%', left: -90, width: 300, height: 180, '--r': '-2deg', '--o': 2 }} />
+      <div className="deco d-bar r" aria-hidden="true" style={{ bottom: '4%', right: -60, width: 300, height: 90, '--r': '4deg', '--o': 6 }} />
       <div className="slam" style={{ display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 34, alignItems: 'flex-start' }}>
         <Title o={18} brush="torn-r">About me</Title>
       </div>

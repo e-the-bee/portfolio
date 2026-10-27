@@ -212,4 +212,6 @@ button{font:inherit;color:inherit;cursor:pointer}
 .beatbg{transform:scale(calc(1 + var(--beat) * .035))}
 .beatpop{transform:scale(calc(1 + var(--beat) * .08))}
 .logoW{transform:scale(calc(1 + var(--beat) * .14))}
-.halftone{opacity:calc(.6 + var(--beat) * .4)}
+.halftone{opacity:calc(.5 + var(--hit,0) * .5)}
+.g{--hit:0}
+.beatbg{translate:calc(var(--hit) * 3px) calc(var(--hit) * -3px)}

@@ -6,11 +6,10 @@ export default function Music() {
   return (
     <>
       <div id="music" style={pageWrap(72)}>
-        <div className="deco d-slash" aria-hidden="true" style={{ top: 44, right: -60, width: 400, height: 96, '--r': '-7deg', '--o': 1 }} />
-        <div className="deco d-rip" aria-hidden="true" style={{ top: 250, left: -90, width: 460, height: 210, '--r': '2deg', '--o': 4 }} />
-        <div className="deco d-shard" aria-hidden="true" style={{ top: '38%', right: -30, width: 220, height: 240, '--r': '6deg', '--o': 2 }} />
-        <div className="deco d-dots" aria-hidden="true" style={{ bottom: 70, left: '2%', width: 270, height: 170, '--o': 3 }} />
-        <div className="deco d-tri r" aria-hidden="true" style={{ bottom: 140, right: '14%', width: 96, height: 96, '--r': '14deg', '--o': 5 }} />
+        <div className="deco d-slash" aria-hidden="true" style={{ top: '4%', right: -60, width: 300, height: 120, '--r': '-7deg', '--o': 1 }} />
+        <div className="deco d-rip" aria-hidden="true" style={{ top: '33%', left: -80, width: 300, height: 180, '--r': '2deg', '--o': 4 }} />
+        <div className="deco d-shard" aria-hidden="true" style={{ top: '62%', right: -30, width: 190, height: 210, '--r': '6deg', '--o': 2 }} />
+        <div className="deco d-dots" aria-hidden="true" style={{ bottom: '3%', left: '2%', width: 220, height: 130, '--o': 3 }} />
         <div className="slam" style={{ display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 34, alignItems: 'flex-start' }}>
           <Title o={7} brush="torn-r">Music lately</Title>
         </div>
