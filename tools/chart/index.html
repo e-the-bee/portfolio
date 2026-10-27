@@ -68,7 +68,7 @@
 
 <div id="help">
   <p><b>Lanes:</b> top lane <span style="color:var(--kick)">kicks</span> (drives <code>--beat</code>: big pulses), bottom lane <span style="color:var(--hit)">hits</span> (drives <code>--hit</code>: smaller accents). Marker height is its strength.</p>
-  <p><b>Mouse:</b> click a lane to add a marker · drag a marker to move it · right-click a marker to delete · click the ruler or waveform to seek · scroll to pan · <kbd>Ctrl</kbd>+scroll to zoom.</p>
+  <p><b>Mouse:</b> click a lane to add a marker · drag a marker to move it · right-click a marker to delete · click the ruler or waveform to seek · hold <kbd>Shift</kbd> and drag across notes to select them, <kbd>Ctrl</kbd>+<kbd>C</kbd> copies, <kbd>Ctrl</kbd>+<kbd>V</kbd> pastes with the first note on the playhead (<kbd>Delete</kbd> removes the selection) · scroll to pan · <kbd>Ctrl</kbd>+scroll to zoom.</p>
   <p><b>Keys:</b> <kbd>Space</kbd> play/pause · <kbd>K</kbd> drop a kick at the playhead · <kbd>H</kbd> drop a hit · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> strength of the selected marker (and new ones) · <kbd>,</kbd> <kbd>.</kbd> nudge selected 10 ms (with <kbd>Shift</kbd> 1 ms) · <kbd>Delete</kbd> remove · <kbd>←</kbd> <kbd>→</kbd> seek 1 s (<kbd>Shift</kbd> 5 s) · <kbd>Ctrl</kbd>+<kbd>S</kbd> save.</p>
   <p><b>Workflow:</b> the markers you open with are the analyzer's guess. Play at 0.5× with ticks on, delete the wrong ones, tap <kbd>K</kbd>/<kbd>H</kbd> where it misses, fix the timing with the nudge keys. Save writes <code>src/beats.json</code> and marks the song as hand-charted, so <code>node tools/analyze-beats.mjs</code> will not overwrite it.</p>
 </div>
@@ -89,6 +89,7 @@ var S = {
   songs: [], name: null, dur: 0, peaks: null, // peaks: Float32Array [min,max,...] per BLOCK samples
   kicks: [], hits: [], beats: [], bpm: 0,        // markers: {t, s}
   sel: null, dirty: false, t0: 0, pps: 80, drag: null, lastT: 0,
+  range: null, picked: new Set(), clip: [], // shift-drag selection: {a, b} seconds, marker objects, copied [{k, dt, s}]
 }
 const BLOCK = 256
 let SR = 44100
@@ -111,6 +112,8 @@ async function openSong(name) {
   S.hits = lane(c.hits, c.hitS)
   S.beats = (c.beats || []).slice()
   S.bpm = c.bpm || 0
+  S.range = null
+  S.picked = new Set()
   S.sel = null
   $('bpm').value = S.bpm || ''
   $('goff').value = (S.beats[0] ?? 0).toFixed(3)
@@ -165,6 +168,12 @@ function addMarker(k, t, s) {
 }
 
 function removeSel() {
+  if (S.picked.size) {
+    for (const k of ['kicks', 'hits']) S[k] = S[k].filter((m) => !S.picked.has(m))
+    S.picked = new Set(); S.range = null; S.sel = null
+    setDirty(true)
+    return
+  }
   if (!S.sel) return
   const arr = lane(S.sel.k)
   arr.splice(arr.indexOf(S.sel.m), 1)
@@ -262,6 +271,20 @@ function draw() {
     }
   }
 
+  // shift-drag range and the markers it picked
+  for (const L of LANES) {
+    for (const m of lane(L.key)) {
+      if (!S.picked.has(m)) continue
+      const x = Math.round(xOf(m.t)), h = Math.max(6, m.s * (H.lane - 8))
+      c.strokeStyle = '#fff'; c.lineWidth = 1; c.strokeRect(x - 6.5, L.y + H.lane - h - 3.5, 13, h + 7)
+    }
+  }
+  if (S.range) {
+    const xa = xOf(Math.min(S.range.a, S.range.b)), xb = xOf(Math.max(S.range.a, S.range.b))
+    c.fillStyle = 'rgba(255,255,255,.12)'; c.fillRect(xa, H.ruler, xb - xa, TOTAL_H - H.ruler)
+    c.fillStyle = 'rgba(255,255,255,.6)'; c.fillRect(xa, H.ruler, 1, TOTAL_H - H.ruler); c.fillRect(xb, H.ruler, 1, TOTAL_H - H.ruler)
+  }
+
   // playhead
   const px = xOf(audio.currentTime)
   if (px >= 0 && px <= w) { c.fillStyle = '#fff'; c.fillRect(Math.round(px), 0, 1, TOTAL_H) }
@@ -321,6 +344,16 @@ function pos(e) { const r = cv.getBoundingClientRect(); return { x: e.clientX - 
 cv.addEventListener('mousedown', (e) => {
   if (e.button !== 0) return
   const { x, y } = pos(e)
+  if (e.shiftKey) {
+    const t = clampT(tOf(x))
+    S.range = { a: t, b: t }
+    S.picked = new Set()
+    S.sel = null
+    S.drag = { range: true }
+    return
+  }
+  S.range = null
+  S.picked = new Set()
   const h = hitTest(x, y)
   if (h) {
     if (h.m) { S.sel = { k: h.k, m: h.m }; S.drag = { m: h.m, k: h.k, moved: false } }
@@ -333,13 +366,18 @@ cv.addEventListener('mousedown', (e) => {
 window.addEventListener('mousemove', (e) => {
   if (!S.drag) return
   const { x } = pos(e)
+  if (S.drag.range) { S.range.b = clampT(tOf(x)); return }
   if (S.drag.seek) { audio.currentTime = clampT(tOf(x)); return }
   S.drag.moved = true
   S.drag.m.t = Math.round(clampT(tOf(x)) * 1000) / 1000
   setDirty(true)
 })
 window.addEventListener('mouseup', () => {
-  if (S.drag && !S.drag.seek) sortLane(S.drag.k)
+  if (S.drag && S.drag.range) {
+    const lo = Math.min(S.range.a, S.range.b), hi = Math.max(S.range.a, S.range.b)
+    S.picked = new Set([...S.kicks, ...S.hits].filter((m) => m.t >= lo && m.t <= hi))
+    status(S.picked.size ? `${S.picked.size} selected · Ctrl+C copies, Ctrl+V pastes at the playhead` : 'nothing in range')
+  } else if (S.drag && !S.drag.seek) sortLane(S.drag.k)
   S.drag = null
 })
 cv.addEventListener('contextmenu', (e) => {
@@ -388,6 +426,29 @@ window.addEventListener('keydown', (e) => {
   }
   const t = audio.currentTime
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); save(); return }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && S.picked.size) {
+    e.preventDefault()
+    const first = Math.min(...[...S.picked].map((m) => m.t))
+    S.clip = ['kicks', 'hits'].flatMap((k) => S[k].filter((m) => S.picked.has(m)).map((m) => ({ k, dt: m.t - first, s: m.s })))
+    status(`copied ${S.clip.length} markers`)
+    return
+  }
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v' && S.clip.length) {
+    e.preventDefault()
+    // the first copied marker lands on the playhead, the rest keep their spacing
+    const made = S.clip.map((c) => {
+      const m = { t: Math.round(clampT(t + c.dt) * 1000) / 1000, s: c.s }
+      S[c.k].push(m)
+      return m
+    })
+    sortLane('kicks'); sortLane('hits')
+    S.picked = new Set(made)
+    S.range = { a: t, b: Math.max(...made.map((m) => m.t)) }
+    S.sel = null
+    setDirty(true)
+    status(`pasted ${made.length} markers at ${t.toFixed(3)}s`)
+    return
+  }
   switch (e.key) {
     case ' ': e.preventDefault(); audio.paused ? audio.play() : audio.pause(); break
     case 'k': case 'K': addMarker('kicks', t); break
@@ -408,7 +469,7 @@ window.addEventListener('keydown', (e) => {
     case 'Delete': case 'Backspace': e.preventDefault(); removeSel(); break
     case 'ArrowLeft': e.preventDefault(); audio.currentTime = clampT(t - (e.shiftKey ? 5 : 1)); break
     case 'ArrowRight': e.preventDefault(); audio.currentTime = clampT(t + (e.shiftKey ? 5 : 1)); break
-    case 'Escape': S.sel = null; break
+    case 'Escape': S.sel = null; S.range = null; S.picked = new Set(); break
   }
 })
 window.addEventListener('beforeunload', (e) => { if (S.dirty) { e.preventDefault(); e.returnValue = '' } })
