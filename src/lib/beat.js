@@ -1,7 +1,7 @@
 // Beat tracker: follows audio.currentTime against beat times precomputed by tools/analyze-beats.mjs
 // (@audio/beat) and writes CSS variables on `root`:
-//   --beat   1 on a kick, decaying to 0
-//   --hit    1 on any strong onset (snare, guitar stab), decaying to 0
+//   --beat   up to 1 on a kick (scaled by its loudness), decaying to 0
+//   --hit    up to 1 on a non-bass onset (snare, guitar stab), decaying to 0
 //   --bar    0..1 phase inside the current beat of the tracked grid
 //   --b0..4  0..1 equaliser levels, a different decay per band, re-rolled on every beat
 import timelines from '../beats.json'
@@ -52,14 +52,17 @@ export function createBeat(audio, root) {
       const bi = lastAtOrBefore(tl.beats, t)
       const sinceKick = ki < 0 ? 9 : t - tl.kicks[ki]
       const sinceHit = hi < 0 ? 9 : t - tl.hits[hi]
-      set('--beat', Math.exp(-sinceKick * 9))
-      set('--hit', Math.exp(-sinceHit * 11))
+      // strength 0..1 per onset: a soft hit gives a small pulse, a loud one a full pulse
+      const kickPower = ki < 0 ? 0 : tl.kickS[ki] ** 1.5
+      const hitPower = hi < 0 ? 0 : tl.hitS[hi] ** 1.5
+      set('--beat', kickPower * Math.exp(-sinceKick * 9))
+      set('--hit', hitPower * Math.exp(-sinceHit * 11))
       if (bi >= 0 && bi + 1 < tl.beats.length) set('--bar', (t - tl.beats[bi]) / (tl.beats[bi + 1] - tl.beats[bi]))
       DECAYS.forEach((d, i) => {
         // each kick or hit "plays" the band at a random height, then it falls back
         const ev = Math.max(ki < 0 ? -9 : tl.kicks[ki], i % 2 ? (hi < 0 ? -9 : tl.hits[hi]) : -9)
         const n = ev < 0 ? 0 : ev * 1000
-        set(`--b${i}`, 0.15 + (0.35 + noise(n, i) * 0.5) * Math.exp(-(t - ev) / d))
+        set(`--b${i}`, 0.15 + (0.35 + noise(n, i) * 0.5) * Math.exp(-(t - ev) / d) * (ev === (ki < 0 ? -9 : tl.kicks[ki]) ? kickPower : hitPower))
       })
     }
     raf = requestAnimationFrame(tick)

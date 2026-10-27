@@ -215,3 +215,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .halftone{opacity:calc(.5 + var(--hit,0) * .5)}
 .g{--hit:0}
 .beatbg{translate:calc(var(--hit) * 3px) calc(var(--hit) * -3px)}
+/* every backdrop plate kicks on bass (--beat) and jolts on other hits (--hit); alternating plates move opposite ways.
+   translate/scale are separate properties, so they stack on top of the boil transform instead of fighting it. */
+.deco{--dir:1;scale:calc(1 + var(--beat,0) * .14 + var(--hit,0) * .06);translate:calc(var(--hit,0) * 14px * var(--dir)) calc(var(--beat,0) * -10px * var(--dir))}
+.deco:nth-of-type(even){--dir:-1}
+.burst{scale:calc(1 + var(--beat,0) * .12)}
+.zig{filter:brightness(calc(1 + var(--hit,0) * .35))}
