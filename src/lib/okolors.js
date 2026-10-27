@@ -1,43 +1,24 @@
-// ── okolors.js ───────────────────────────────────────────────────────────
-// A small JavaScript port of the approach used by Okolors
-// (https://github.com/IanManske/Okolors): quantize an image by running
-// k-means clustering in the Oklab colour space, then rank the resulting
-// clusters. Oklab is perceptually uniform, so clustering there yields far
-// nicer, more representative palettes than clustering in sRGB/HSL.
-//
-// Rust can't run in the browser, so rather than shelling out to the Okolors
-// crate this reimplements its core method (Oklab + weighted k-means) in JS.
-// Results are cached in localStorage keyed by image URL, so the (already
-// cheap) k-means only ever runs once per avatar — no recompute lag on revisit.
-//
-// Colour-space conversions live in color.js; this file is the quantizer.
+// Palette extraction in the style of Okolors (https://github.com/IanManske/Okolors): weighted k-means
+// in Oklab, then rank the clusters. Results are cached in localStorage by image URL.
 
 import { oklabToRgb, rgbHex, rgbToHsl, rgbToOklab } from './color.js'
 
-// Bumped to v2 when the quantizer changed — old cached results (including
-// wrong `{mono:true}` verdicts) are keyed by the old prefix and ignored.
+// Bump when the quantizer changes so stale cached results are ignored.
 const CACHE_PREFIX = 'okolors-v2:'
 
-// Pixels are downsampled to this square before quantizing. Big enough to keep
-// small but saturated details (graffiti, logos, eyes) alive in the histogram.
+// Images are downsampled to this square before quantizing.
 const SAMPLE_SIZE = 64
 
-// Cluster count. Photographic avatars often have a large dull region (a wall,
-// a sky, skin) plus a small vivid one; too few clusters and k-means spends
-// them all subdividing the dull region by lightness, averaging every vivid
-// pixel away into grey. 20 leaves enough clusters for the minority colours.
+// Cluster count. Enough that a small vivid region is not averaged into a large dull one.
 const K = 20
 
-// Deterministic PRNG (LCG). k-means seeding needs randomness, but results are
-// cached, so Math.random would freeze one arbitrary run's palette per visitor.
-// A fixed seed makes the palette a pure function of the image.
+// Deterministic PRNG for k-means seeding, so the palette is a pure function of the image.
 function rng(seed) {
   let s = seed >>> 0
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296
 }
 
-// ── weighted k-means in Oklab ──────────────────────────────────────────────
-// points: Float array of [L,a,b] triples; weights: per-point pixel counts.
+// Weighted k-means. points: [L,a,b] triples; weights: per-point pixel counts.
 function kmeans(points, weights, k, iters) {
   const n = points.length
   if (n === 0) return []
@@ -101,8 +82,7 @@ function kmeans(points, weights, k, iters) {
   }).filter((c) => c.weight > 0)
 }
 
-// Reduce raw pixels to unique-ish colours (bucketed) with counts, so k-means
-// operates on a few hundred weighted points instead of thousands of pixels.
+// Bucket pixels into weighted colours so k-means runs on a few hundred points, not thousands.
 function collect(data) {
   const map = new Map()
   for (let i = 0; i < data.length; i += 4) {
@@ -123,10 +103,8 @@ function collect(data) {
   return { points, weights }
 }
 
-// Analyse an ImageData buffer → { h, s, colors } where `colors` are the image's
-// actual dominant vibrant colours (up to 3, most prominent first) so effects
-// can reflect the real avatar palette, not just one rotated hue. Returns
-// { mono: true } if the image is essentially greyscale.
+// ImageData buffer -> { h, s, colors } with up to 3 dominant vibrant colours, most prominent first,
+// or { mono: true } for a greyscale image.
 function analyze(data) {
   const { points, weights } = collect(data)
   const clusters = kmeans(points, weights, K, 14)
@@ -135,34 +113,28 @@ function analyze(data) {
   const total = clusters.reduce((sum, c) => sum + c.weight, 0)
   const maxChroma = Math.max(...clusters.map((c) => c.chroma))
 
-  // Only a genuinely colourless image is mono. Judging this on the image's
-  // peak chroma (not a fixed cut on every cluster) is what stops a muted but
-  // real palette — a photo, a dark or pastel avatar — reading as greyscale.
+  // Mono is judged on peak chroma, so a muted photo or pastel image is not mistaken for greyscale.
   if (maxChroma < 0.02) return { mono: true }
 
-  // Vibrancy cut, relative to how colourful this image gets at all. A flat
-  // vivid avatar keeps a strict cut; a muted one still surfaces its best
-  // colours instead of failing the absolute threshold outright.
+  // Vibrancy cut relative to the image's own peak chroma.
   const cut = Math.max(0.022, maxChroma * 0.45)
 
-  // Rank on vibrancy × presence, dropping near-greys and lightness extremes.
-  // Chroma is weighted above share so a small vivid region beats a large dull
-  // one — the dull region is the background, the vivid one is the subject.
+  // Rank by vibrancy and presence, dropping near-greys and lightness extremes. Chroma outweighs share
+  // so a small vivid region beats a large dull one.
   const vibrant = clusters
     .filter((c) => c.chroma >= cut && c.L >= 0.18 && c.L <= 0.92)
     .map((c) => ({ c, score: Math.pow(c.chroma, 1.4) * Math.pow(c.weight / total, 0.28) }))
     .sort((a, b) => b.score - a.score)
   if (!vibrant.length) return { mono: true }
 
-  // Pick up to 3, skipping hues too close to one already taken, so the banner
-  // gets the avatar's distinct colours rather than three shades of one.
+  // Pick up to 3, skipping hues too close to one already taken.
   const picked = []
   for (const { c } of vibrant) {
     if (picked.length === 3) break
     const clashes = picked.some((p) => Math.abs(((c.hue - p.hue + 540) % 360) - 180) <= 28)
     if (!clashes) picked.push(c)
   }
-  // If hue-dedupe left us short, top up with the best remaining unpicked ones.
+  // Top up with the best remaining colours if the hue filter left fewer than 3.
   for (const { c } of vibrant) {
     if (picked.length === 3) break
     if (!picked.includes(c)) picked.push(c)
@@ -185,14 +157,8 @@ function writeCache(url, val) {
   try { localStorage.setItem(CACHE_PREFIX + url, JSON.stringify(val)) } catch { /* quota/private mode */ }
 }
 
-/**
- * Resolve a palette hint for an image URL.
- * @returns Promise<{h:number,s:number,colors:string[]} | {mono:true} | null>
- *   - {h,s,colors}  dominant vibrant hue/sat plus up to 3 dominant hex colours
- *   - {mono}        greyscale image — caller should use a neutral palette
- *   - null          image failed to load / CORS-tainted
- * Cached in localStorage, so repeat calls for the same URL are instant.
- */
+// Resolves to { h, s, colors }, { mono: true } for a greyscale image, or null if the image failed to
+// load or is CORS-tainted.
 export function getPaletteFromUrl(url) {
   const cached = readCache(url)
   if (cached) return Promise.resolve(cached)
@@ -204,9 +170,7 @@ export function getPaletteFromUrl(url) {
   })
 }
 
-// Draw an image into a SAMPLE_SIZE square and hand back its pixels.
-// Resolves null on a load failure or a CORS-tainted canvas. Animated PNGs
-// (avatar decorations) contribute their first frame, which is all we need.
+// Draw an image into a SAMPLE_SIZE square and return its pixels, or null on a load failure or tainted canvas.
 function loadPixels(url) {
   return new Promise((resolve) => {
     const img = new Image()

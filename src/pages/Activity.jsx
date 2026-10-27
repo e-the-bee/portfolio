@@ -1,7 +1,7 @@
 import Title, { pageWrap } from './Title.jsx'
 
-// Placeholder: this page will run on a second git account that is not set up yet, so it shows no real data.
-// The previous live Codeberg version is parked in ActivityLive.jsx; swap the import in App.jsx to bring it back.
+// Placeholder until the new git account is set up. The live Codeberg version is parked in ActivityLive.jsx;
+// import it in App.jsx instead of this file to bring it back.
 const PLANNED = [
   'Contribution map',
   'Recent commits per project',

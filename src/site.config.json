@@ -13,8 +13,6 @@
   },
   "palette": {
     "minSaturation": 0.55,
-    "maxSaturation": 0.9,
-    "decorationInfluence": 0.35,
-    "accentShift": 0.55
+    "maxSaturation": 0.9
   }
 }

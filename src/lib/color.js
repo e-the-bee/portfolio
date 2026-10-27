@@ -1,11 +1,4 @@
-// ── color.js ─────────────────────────────────────────────────────────────
-// Colour-space conversions shared across the app: HSL/hex strings for CSS,
-// 0-1 RGB triples for WebGL uniforms, and sRGB ⇄ Oklab for the quantizer.
-// Pure functions only — nothing here touches the DOM or app state.
-
-export function hslStr(h, s, l) {
-  return `hsl(${h.toFixed(0)} ${s.toFixed(0)}% ${l}%)`
-}
+// Colour-space conversions: hex, HSL, and sRGB <-> Oklab for the quantizer.
 
 export function hslToHex(h, s, l) {
   h = ((h % 360) + 360) % 360
@@ -19,7 +12,7 @@ export function hslToHex(h, s, l) {
   return `#${f(0)}${f(8)}${f(4)}`
 }
 
-// '#rgb' or '#rrggbb' → [r, g, b] in 0-1, for WebGL colour uniforms.
+// '#rgb' or '#rrggbb' -> [r, g, b] in 0-1.
 export function hexToRgb01(hex) {
   const h = hex.replace('#', '')
   const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h
@@ -32,7 +25,7 @@ export function rgbHex(r, g, b) {
   return `#${to(r)}${to(g)}${to(b)}`
 }
 
-// r/g/b in 0-255 → [h 0-360, s 0-1, l 0-1]
+// r/g/b in 0-255 -> [h 0-360, s 0-1, l 0-1]
 export function rgbToHsl(r, g, b) {
   r /= 255; g /= 255; b /= 255
   const max = Math.max(r, g, b), min = Math.min(r, g, b)
@@ -51,7 +44,7 @@ export function rgbToHsl(r, g, b) {
   return [h, s, l]
 }
 
-// ── sRGB ⇄ Oklab (Björn Ottosson's matrices) ─────────────────────────────
+// sRGB <-> Oklab, using Bjorn Ottosson's matrices.
 function srgbToLinear(c) {
   c /= 255
   return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)

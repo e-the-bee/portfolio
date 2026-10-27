@@ -1,38 +1,40 @@
 import { useEffect, useRef, useState } from 'react'
+import Hero from './components/Hero.jsx'
+import Logo from './components/Logo.jsx'
+import Player, { MiniPlayer } from './components/Player.jsx'
+import { SONGS } from './content.js'
+import { createBeat } from './lib/beat.js'
 import { hexToRgb01 } from './lib/color.js'
 import { fetchPresence } from './lib/lanyard.js'
-import { createBeat } from './lib/beat.js'
 import { getPaletteFromUrl } from './lib/okolors.js'
 import { MONO_BANNER_COLORS, bannerColors } from './lib/palette.js'
-import { BIO, BIO_LINK, DISCORD_BIO, SONGS } from './content.js'
-// About is switched off for now; restore the import, nav entry and route below to bring it back.
-// import About from './pages/About.jsx'
 import Activity from './pages/Activity.jsx'
 import Extras from './pages/Extras.jsx'
 import Music from './pages/Music.jsx'
 import Projects from './pages/Projects.jsx'
 import config from './site.config.json'
+import { BONE, INK } from './theme.js'
 
-const INK = '#0b0b0b'
-const BONE = '#f2f0e6'
 const DEFAULT_ACC = '#d6232b'
 
+// About (pages/About.jsx) is switched off: re-add it here and to NAV to bring it back.
 const NAV = [
   { id: 'home', label: 'Home' },
   { id: 'music', label: 'Music' },
   { id: 'projects', label: 'Projects' },
   { id: 'activity', label: 'Activity' },
   { id: 'extras', label: 'Extras' },
-  // { id: 'about', label: 'About' },
 ]
 
-// The site accent follows the cover art of the current song.
+const PAGES = { music: Music, projects: Projects, activity: Activity }
+
 // Text colour that stays readable on the accent block.
 function onAccent(hex) {
   const [r, g, b] = hexToRgb01(hex)
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.55 ? INK : BONE
 }
 
+// The site accent follows the cover art of the current song.
 function accentFrom(res) {
   if (!res) return DEFAULT_ACC
   if (res.mono) return MONO_BANNER_COLORS[0]
@@ -101,7 +103,7 @@ export default function App() {
     }
   }, [playing, song])
 
-  // Beat effects: the analyser writes --beat and --b0..4 straight onto the root element, no re-renders.
+  // Beat effects: the tracker writes --beat and --b0..4 straight onto the root element, no re-renders.
   useEffect(() => {
     beatRef.current = createBeat(audioRef.current, rootRef.current)
     return () => beatRef.current?.stop()
@@ -148,6 +150,7 @@ export default function App() {
   }
 
   const rootVars = { '--acc': acc, '--on': onAccent(acc), '--flick': '.36s' }
+  const Page = PAGES[page]
 
   return (
     <div ref={rootRef} className="g" style={{ ...rootVars, minHeight: '100vh', position: 'relative', overflow: 'hidden', background: INK, paddingBottom: 24 }}>
@@ -158,28 +161,20 @@ export default function App() {
         preload="metadata"
         onLoadStart={() => setPct(0)}
         onTimeUpdate={(e) => setPct(e.currentTarget.duration ? (e.currentTarget.currentTime / e.currentTarget.duration) * 100 : 0)}
-        onEnded={() => { setSong((song + 1) % SONGS.length); setPlaying(true) }}
+        onEnded={player.next}
       />
 
-      {/* backdrop shapes */}
       <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 820, overflow: 'hidden', pointerEvents: 'none' }}>
         <div className="beatbg" style={{ position: 'absolute', inset: 0 }}>
-        <div className="deco d-slash" style={{ zIndex: 0, top: -50, left: '-5%', width: '30%', height: 340, '--r': '0deg', '--o': 0 }} />
-        <div className="deco d-bar" style={{ zIndex: 0, top: 560, left: '-3%', width: 240, height: 80, '--r': '-8deg', '--o': 2 }} />
-        <div className="halftone" style={{ position: 'absolute', right: 0, top: 0, width: '48%', height: 440 }} />
+          <div className="deco d-slash" style={{ zIndex: 0, top: -50, left: '-5%', width: '30%', height: 340, '--r': '0deg', '--o': 0 }} />
+          <div className="deco d-bar" style={{ zIndex: 0, top: 560, left: '-3%', width: 240, height: 80, '--r': '-8deg', '--o': 2 }} />
+          <div className="halftone" style={{ position: 'absolute', right: 0, top: 0, width: '48%', height: 440 }} />
         </div>
       </div>
 
-      {/* nav */}
       <div style={{ maxWidth: 1160, margin: '0 auto', padding: '22px 16px 0', position: 'relative', zIndex: 2 }}>
         <div className="box slam" style={{ display: 'flex', flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden', alignItems: 'center', gap: 22, padding: '22px 24px' }}>
-          <div className="logoW">
-            <div className="sh" aria-hidden="true" />
-            <svg className="wob" viewBox="0 0 60 60" width="60" height="60" role="img" aria-label="Logo" style={{ display: 'block', overflow: 'visible' }}>
-              <path d={NOTE} transform="translate(4 4)" fill={BONE} />
-              <path d={NOTE} fill={INK} stroke={BONE} strokeWidth="1.5" strokeLinejoin="miter" />
-            </svg>
-          </div>
+          <Logo />
           <nav style={{ display: 'flex', flexWrap: 'nowrap', gap: 18, flex: '1 0 auto' }}>
             {NAV.map((n) => (
               <button key={n.id} type="button" className={`jag nv${n.id === page ? ' cur' : ''}`} style={{ '--base': 'skewX(-12deg)' }} onClick={() => go(n.id)}>
@@ -196,168 +191,15 @@ export default function App() {
       {page === 'home' ? (
         <>
           <Player player={player} />
-          <Hero me={me} acc={acc} />
+          <Hero me={me} />
         </>
-      ) : page === 'music' ? <Music />
-        : page === 'projects' ? <Projects />
-          : page === 'activity' ? <Activity />
-            : <Extras handle={me.userTag} />}
-      {/* page === 'about' && <About /> */}
+      ) : page === 'extras' ? <Extras handle={me.userTag} /> : <Page />}
 
-      {/* footer */}
       <div className="zig" aria-hidden="true" style={{ marginTop: 80 }} />
       <div style={{ maxWidth: 1160, margin: '0 auto', padding: '40px 16px 20px', position: 'relative', zIndex: 1 }}>
         <div className="box pb" style={{ padding: 20, display: 'flex', flexWrap: 'wrap', gap: 14, alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 13 }}>© {new Date().getFullYear()} {me.userTag}</span>
           <button type="button" className="jag btn r" onClick={() => window.scrollTo({ top: 0 })}>Back to top</button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Jagged eighth note: stem, spiky flag and a chipped note head in one outline.
-const NOTE = 'M33 3 L36 2 L38 9 L45 14 L43 18 L51 24 L48 29 L52 36 L45 34 L38 28 L37 48 L41 53 L37 59 L29 57 L22 59 L13 56 L8 51 L11 44 L6 41 L14 36 L21 38 L27 40 L28 12 Z'
-
-function Volume({ player }) {
-  return (
-    <label className="vol">
-      <span>Vol</span>
-      <input
-        type="range"
-        min="0"
-        max="1"
-        step="0.01"
-        value={player.volume}
-        aria-label="Volume"
-        onChange={(e) => player.setVolume(Number(e.target.value))}
-      />
-    </label>
-  )
-}
-
-function MiniPlayer({ player }) {
-  const btn = { minHeight: 44, fontSize: 15, padding: '6px 16px' }
-  return (
-    <div style={{ maxWidth: 1160, margin: '0 auto', padding: '18px 16px 0', position: 'relative', zIndex: 2 }}>
-      <div className="box rd" style={{ display: 'flex', flexWrap: 'nowrap', overflowX: 'auto', gap: 18, alignItems: 'center', padding: '22px 20px', border: `3px solid ${INK}`, boxShadow: `6px 6px 0 ${BONE}` }}>
-        <span className="tag" style={{ flex: 'none', whiteSpace: 'nowrap' }}>now playing</span>
-        <span className="hd" style={{ fontSize: 22, flex: '1 0 140px', whiteSpace: 'nowrap' }}>{player.cur.title}</span>
-        <button type="button" className="jag btn" style={btn} onClick={player.prev}>Prev</button>
-        <button type="button" className="jag btn on" style={btn} onClick={player.toggle}>{player.playing ? 'Pause' : 'Play'}</button>
-        <button type="button" className="jag btn" style={btn} onClick={player.next}>Next</button>
-        <Volume player={player} />
-      </div>
-    </div>
-  )
-}
-
-function Player({ player }) {
-  const { cur, song, playing } = player
-  return (
-    <div id="player" style={{ maxWidth: 1160, margin: '0 auto', padding: '36px 16px 0', position: 'relative', zIndex: 1 }}>
-      <div className="deco d-slash" aria-hidden="true" style={{ top: -14, right: -70, width: 300, height: 120, '--r': '-6deg', '--o': 1 }} />
-      <div className="deco d-rip" aria-hidden="true" style={{ top: '52%', left: -80, width: 300, height: 180, '--r': '3deg', '--o': 3 }} />
-      <div className="deco d-tri b" aria-hidden="true" style={{ bottom: -26, right: '7%', width: 120, height: 120, '--r': '12deg', '--o': 4 }} />
-      <div className="box rd slam" style={{ padding: 24, border: `3px solid ${INK}`, boxShadow: `8px 8px 0 ${BONE}`, '--d': '200ms' }}>
-        <div className={playing ? 'player' : 'player paused'} style={{ display: 'flex', flexWrap: 'wrap', gap: 28, alignItems: 'stretch' }}>
-          <div style={{ display: 'flex', gap: 18, alignItems: 'center', flex: '2 1 520px', minWidth: 0 }}>
-            <div className="bk" style={{ width: 124, height: 124, flex: 'none', transform: 'rotate(-3deg) scale(calc(1 + var(--beat, 0) * .06))', padding: 0, overflow: 'hidden' }}>
-              <img src={cur.cover} alt="" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'cover' }} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1, minWidth: 0 }}>
-              <h2 className="hd fx dk" style={{ fontSize: 36, lineHeight: 1, alignSelf: 'flex-start', color: 'var(--on)', '--o': 11 }}>
-                {cur.title}
-                {[1, 2, 3, 4, 5].map((n) => <i key={n} className={`cl c${n}`} aria-hidden="true">{cur.title}</i>)}
-              </h2>
-              <span style={{ fontSize: 13 }}>{cur.artist} · {cur.album}</span>
-              <div className="prog"><i style={{ width: `${player.pct}%`, animation: 'none' }} /></div>
-              <div style={{ display: 'flex', flexWrap: 'nowrap', gap: 16 }}>
-                <button type="button" className="jag btn" onClick={player.prev}>Prev</button>
-                <button type="button" className="jag btn on" onClick={player.toggle}>{playing ? 'Pause' : 'Play'}</button>
-                <button type="button" className="jag btn" onClick={player.next}>Next</button>
-                <Volume player={player} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 6, alignItems: 'flex-end', height: 56, flex: 'none' }} aria-hidden="true">
-              {['-.1s', '-.35s', '-.2s', '-.45s', '-.05s'].map((d, i) => <i key={d} className="eqb" style={{ animationDelay: d, '--bv': `var(--b${i}, .5)` }} />)}
-            </div>
-          </div>
-
-          <div style={{ flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14, padding: '4px 14px 4px 10px' }}>
-              {SONGS.map((s, i) => (
-                <button key={s.title} type="button" className={i === song ? 'jag trk on' : 'jag trk'} onClick={() => player.pick(i)}>
-                  <span className="num">{i + 1}</span>
-                  <span style={{ flex: 1, fontSize: 14 }}>{s.title}</span>
-                  <span className="tag">{s.artist}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function Hero({ me, acc }) {
-  const [first, ...rest] = me.displayName.split(' ')
-  return (
-    <div id="top" style={{ maxWidth: 1160, margin: '0 auto', padding: '36px 16px 0', position: 'relative', zIndex: 1 }}>
-      <div className="deco d-burst b" aria-hidden="true" style={{ top: '46%', right: -60, width: 200, height: 200, '--r': '-8deg', '--o': 1 }} />
-      <div className="deco d-dots" aria-hidden="true" style={{ bottom: '4%', left: '3%', width: 220, height: 130, '--o': 2 }} />
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 36, alignItems: 'stretch' }}>
-        <div style={{ flex: '1 1 480px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 26 }}>
-          <div className="slam" style={{ display: 'flex', flexWrap: 'wrap', gap: 34, alignItems: 'center', '--d': '100ms' }}>
-            <div className="beatpop" style={{ position: 'relative', width: 190, height: 190, margin: '20px 30px 20px 20px' }}>
-              <div className="burst" aria-hidden="true" style={{ position: 'absolute', inset: -44, background: 'var(--burst-k) 0 0/100% 100% no-repeat' }} />
-              <div className="burst" aria-hidden="true" style={{ position: 'absolute', inset: -30, background: 'var(--burst-b) 0 0/100% 100% no-repeat', animationDirection: 'reverse' }} />
-              <img className="pfp" src="/pfp.jpg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', border: `4px solid ${INK}` }} />
-              <div aria-hidden="true" style={{ position: 'absolute', top: -16, left: 50, width: 84, height: 26, background: 'rgba(242,240,230,.85)', transform: 'rotate(-6deg)', zIndex: 5 }} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: '1 1 260px', minWidth: 0 }}>
-              <h1 className="hd fx" style={{ fontSize: 'clamp(52px,9vw,92px)', lineHeight: 0.95, color: '#fff', textShadow: `5px 5px 0 ${INK}`, alignSelf: 'flex-start', '--o': 4 }}>
-                <span className="wob">{first}{rest.length > 0 && <><br />{rest.join(' ')}</>}</span>
-                <i className="fl f1" /><i className="fl f2" /><i className="fl f3" /><i className="fl f4" /><i className="fl f5" />
-              </h1>
-              <p className="mk" style={{ fontSize: 22, transform: 'rotate(-2deg)', background: INK, color: BONE, padding: '4px 12px', alignSelf: 'flex-start' }}>Making noise, shipping code.</p>
-            </div>
-          </div>
-
-          <div className="box pb slam" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12, '--d': '220ms' }}>
-            {BIO.map((t) => <p key={t} style={{ fontSize: 14, lineHeight: 1.6 }}>{t}</p>)}
-            <a href={BIO_LINK} target="_blank" rel="noreferrer" style={{ fontSize: 13, alignSelf: 'flex-start', textDecoration: 'underline' }}>{BIO_LINK}</a>
-          </div>
-
-        </div>
-
-        {/* discord */}
-        <div className="slam" style={{ flex: '0 1 380px', minWidth: 260, width: '100%', display: 'flex', '--d': '300ms' }}>
-          <div className="bk" style={{ boxShadow: '8px 8px 0 var(--acc)', flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <div className="rd" style={{ height: 100, padding: 10, position: 'relative', overflow: 'hidden', borderBottom: `3px solid ${BONE}` }}>
-              <div className="halftone" aria-hidden="true" style={{ position: 'absolute', inset: 0, opacity: 0.9, background: `radial-gradient(circle,${INK} 26%,transparent 28%) 0 0/12px 12px` }} />
-            </div>
-            <div style={{ padding: '0 20px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: -36, position: 'relative' }}>
-                <div style={{ position: 'relative', width: 78, height: 78 }}>
-                  <img src={me.avatarUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', border: `4px solid ${INK}`, borderRadius: '50%', background: BONE }} />
-                  <div className="dot" style={{ position: 'absolute', right: -4, bottom: -4, background: me.status.color }} />
-                </div>
-              </div>
-              <div>
-                <h3 className="hd" style={{ fontSize: 26 }}>{me.displayName}</h3>
-                <p style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>{me.userTag}</p>
-              </div>
-              <div style={{ fontSize: 12, lineHeight: 1.6, borderTop: '2px dashed rgba(242,240,230,.35)', paddingTop: 12 }}>
-                <a href={BIO_LINK} target="_blank" rel="noreferrer" style={{ textDecoration: 'underline' }}>nohello.net</a>
-                {DISCORD_BIO.map((t) => <div key={t}>{t}</div>)}
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <span className="tag">{me.status.label}</span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

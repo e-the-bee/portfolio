@@ -19,14 +19,6 @@ export const ALBUMS = [
   { album: 'Requiem', artist: 'Korn', cover: '/covers/requiem.jpg' },
 ]
 
-export const TOP_ARTISTS = [
-  { name: '[Artist 1]', w: '92%' },
-  { name: '[Artist 2]', w: '74%' },
-  { name: '[Artist 3]', w: '61%' },
-  { name: '[Artist 4]', w: '48%' },
-  { name: '[Artist 5]', w: '30%' },
-]
-
 export const PROJECTS = [
   { name: '[Project one]', status: 'live', cat: 'mods', tags: ['tag', 'tag'] },
   { name: '[Project two]', status: 'in progress', cat: 'tools', tags: ['tag', 'tag'] },
