@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "analyze": "node tools/analyze-beats.mjs",
+    "chart": "node tools/chart/server.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

@@ -1,10 +1,10 @@
 // Precompute beat timelines for the songs in public/audio, written to src/beats.json.
-// Run: node tools/analyze-beats.mjs   (needs ffmpeg on PATH)
+// Run: node tools/analyze-beats.mjs   (needs ffmpeg on PATH). Use `npm run chart` to correct the result by hand.
 // kicks = onsets of the low end (< 160 Hz), hits = onsets of the full mix, beats = tracked beat grid.
 // kickS / hitS are 0..1 strengths parallel to kicks / hits. An onset only counts if its band is actually loud
 // compared with the rest of the song, so a quiet intro does not trigger bass effects.
 import { spawnSync } from 'node:child_process'
-import { readdirSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { beatTrack, onsets } from '@audio/beat'
 
 const FS = 22050
@@ -61,9 +61,17 @@ function gate(times, env, min, weight = () => 1) {
 }
 
 const round = (a, k = 1000) => Array.from(a, (t) => Math.round(t * k) / k)
+const OUT = new URL('../src/beats.json', import.meta.url)
+// Songs charted by hand in tools/chart (marked `hand: true`) are kept as they are.
+const prev = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8')) : {}
 const out = {}
 
 for (const name of readdirSync(DIR).filter((f) => f.endsWith('.mp3'))) {
+  if (prev[`/audio/${name}`]?.hand) {
+    out[`/audio/${name}`] = prev[`/audio/${name}`]
+    console.log(name, 'hand-charted, skipped')
+    continue
+  }
   const file = new URL(name, DIR).pathname
   const full = decode(file)
   const low = decode(file, 'lowpass=f=160,lowpass=f=160')
@@ -85,4 +93,4 @@ for (const name of readdirSync(DIR).filter((f) => f.endsWith('.mp3'))) {
   console.log(name, 'bpm', out[`/audio/${name}`].bpm, 'kicks', k.keep.length, `(${intro(k.keep)} in first 8s)`, 'hits', h.keep.length, `(${intro(h.keep)} in first 8s)`)
 }
 
-writeFileSync(new URL('../src/beats.json', import.meta.url), JSON.stringify(out))
+writeFileSync(OUT, JSON.stringify(out))
