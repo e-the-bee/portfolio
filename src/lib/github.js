@@ -1,6 +1,9 @@
-// Thin client for the public Codeberg (Forgejo) API. Responses are cached in
-// sessionStorage for a few minutes so flipping between pages stays cheap.
-const API = 'https://codeberg.org/api/v1'
+// Client for the public GitHub REST API (60 requests/hour per visitor without a token). Responses are
+// cached in sessionStorage for a few minutes so flipping between pages stays cheap.
+const API = 'https://api.github.com'
+// GitHub has no public contribution-graph endpoint (GraphQL needs a token), so the graph comes from a
+// community mirror of it.
+const CONTRIBUTIONS_API = 'https://github-contributions-api.jogruber.de/v4'
 const TTL = 5 * 60 * 1000
 
 function readCache(key) {
@@ -15,32 +18,32 @@ function writeCache(key, data) {
   try { sessionStorage.setItem(key, JSON.stringify({ at: Date.now(), data })) } catch { /* storage full or blocked */ }
 }
 
-async function get(path) {
-  const key = `cb:${path}`
+async function get(url) {
+  const key = `gh:${url}`
   const cached = readCache(key)
   if (cached) return cached
-  const res = await fetch(`${API}${path}`, { headers: { Accept: 'application/json' } })
-  if (!res.ok) throw new Error(`Codeberg ${res.status}`)
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`GitHub ${res.status}`)
   const data = await res.json()
   writeCache(key, data)
   return data
 }
 
-export const fetchRepos = (user) => get(`/users/${user}/repos?limit=50`)
+export const fetchRepos = (user) => get(`${API}/users/${user}/repos?type=owner&per_page=100`)
 
-// [{ timestamp (s), contributions }]
-export const fetchHeatmap = (user) => get(`/users/${user}/heatmap`)
+// [{ date: 'YYYY-MM-DD', count }] for the past year
+export const fetchContributions = (user) => get(`${CONTRIBUTIONS_API}/${user}?y=last`).then((r) => r.contributions)
 
 // { Language: bytes }
-export const fetchLanguages = (user, repo) => get(`/repos/${user}/${repo}/languages`)
+export const fetchLanguages = (user, repo) => get(`${API}/repos/${user}/${repo}/languages`)
 
-export async function fetchCommits(user, repo, limit) {
-  const list = await get(`/repos/${user}/${repo}/commits?limit=${limit}&stat=false&verification=false&files=false`)
+export async function fetchCommits(user, repo) {
+  const list = await get(`${API}/repos/${user}/${repo}/commits?author=${user}&per_page=100`)
   return list.map((c) => ({
     repo,
     sha: c.sha.slice(0, 7),
     message: c.commit.message.split('\n')[0],
-    date: new Date(c.created),
+    date: new Date(c.commit.author.date),
     url: c.html_url,
   }))
 }

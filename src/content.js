@@ -53,7 +53,7 @@ export const INTERESTS = 'music, code, [thing], [thing]'
 export const EMAIL = 'ethebee3@gmail.com'
 
 export const LINKS = [
-  { label: 'Codeberg', href: 'https://codeberg.org/ethebee3' },
+  { label: 'GitHub', href: 'https://github.com/e-the-bee' },
   { label: 'Discord', href: 'https://discord.com/users/1164594827883728987' },
 ]
 
@@ -89,9 +89,8 @@ export const AI_POLICY_DISLIKES = [
   'Selling cheap AI-made products meant to trick the buyer',
 ]
 
-// Codeberg account whose activity the Activity page shows, and repos left out of it.
-export const ACTIVITY_USER = 'ethebee3'
-export const ACTIVITY_HIDE_REPOS = ['pages']
+// GitHub account whose activity the Activity page shows.
+export const ACTIVITY_USER = 'e-the-bee'
 
 // Bio shown on the Discord profile card.
 export const DISCORD_BIO = [
