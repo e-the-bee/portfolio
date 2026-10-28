@@ -37,7 +37,7 @@ export default function Projects() {
               <div key={p.idx} className="slam" style={{ flex: '1 1 250px', maxWidth: 360, position: 'relative', '--d': `${i * 110}ms` }}>
                 {p.wip && <span className="wip hd" aria-label="Work in progress"><span>WIP</span></span>}
                 <a className="jag keep card pb" href="#detail" onClick={(e) => { e.preventDefault(); show(p.idx) }} style={{ display: 'block', textDecoration: 'none', border: '3px solid #0b0b0b' }}>
-                  <div className="thumb"><span>PROJECT IMAGE / GIF</span></div>
+                  <div className="thumb">{p.image ? <img src={p.image} alt={`${p.name} screenshot`} /> : <span>PROJECT IMAGE / GIF</span>}</div>
                   <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10, borderTop: '3px solid #0b0b0b' }}>
                     <h3 className="hd" style={{ fontSize: 26 }}>{p.name}</h3>
                     {p.desc ? <p style={{ fontSize: 13, lineHeight: 1.45 }}>{p.desc}</p> : (
@@ -72,7 +72,7 @@ function Detail({ p, back }) {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 34, alignItems: 'flex-start' }}>
           <div style={{ flex: '2 1 460px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 30 }}>
             <div className="box pb" style={{ border: '3px solid #0b0b0b' }}>
-              <div className="thumb" style={{ height: 340 }}><span>BIG PROJECT MEDIA / GIF / VIDEO</span></div>
+              <div className="thumb" style={{ height: 340 }}>{p.image ? <img src={p.image} alt={`${p.name} screenshot`} /> : <span>BIG PROJECT MEDIA / GIF / VIDEO</span>}</div>
               <div style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12, borderTop: '3px solid #0b0b0b' }}>
                 <h3 className="hd" style={{ fontSize: 52, lineHeight: 1 }}>{p.name}</h3>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>

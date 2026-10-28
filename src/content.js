@@ -24,6 +24,7 @@ export const PROJECTS = [
     name: 'Portfolio', status: 'live', cat: 'web', tags: ['react', 'vite'],
     desc: 'This site: a React + Vite portfolio with a beat-synced music player and a live GitHub activity page.',
     source: 'https://github.com/e-the-bee/portfolio',
+    image: '/projects/portfolio.png',
   },
   {
     name: 'Aerogel', status: 'in progress', cat: 'mods', tags: ['minecraft', 'open source'], wip: true,
