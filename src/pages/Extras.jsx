@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { AI_POLICY, AI_POLICY_DISLIKES, DNI, EMAIL, INTERESTS, LINKS } from '../content.js'
+import { AI_POLICY, AI_POLICY_DISLIKES, DNI, EMAIL, LINKS } from '../content.js'
 import Title, { pageWrap } from './Title.jsx'
 
-const sq = (bg) => ({ width: 12, height: 12, background: bg })
 const small = { fontSize: 15, padding: '6px 16px' }
 
-export default function Extras({ handle }) {
+export default function Extras() {
   const [copied, setCopied] = useState(false)
   const copyEmail = async () => {
     try {
@@ -24,18 +23,7 @@ export default function Extras({ handle }) {
         <Title o={22} brush="brush-r">Extras</Title>
       </div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, alignItems: 'flex-start' }}>
-        <div className="box bk" style={{ flex: '1 1 380px', padding: 22, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0, boxShadow: '8px 8px 0 var(--acc)' }}>
-          <div style={{ display: 'flex', gap: 6, marginBottom: 6 }}>
-            <i className="rd" style={sq()} /><i style={sq('#f2f0e6')} /><i style={sq('#f2f0e6')} />
-          </div>
-          <div className="type" style={{ '--ch': '10ch', '--d': '.3s' }}>$ whoami</div>
-          <div className="type" style={{ '--ch': `${handle.length + 1}ch`, '--d': '1.6s' }}>{handle}</div>
-          <div className="type" style={{ '--ch': '18ch', '--d': '2.8s' }}>$ cat interests.txt</div>
-          <div className="type" style={{ '--ch': `${INTERESTS.length}ch`, '--d': '4.6s' }}>{INTERESTS}</div>
-          <div><span style={{ fontSize: 14 }}>$ </span><span className="caret" /></div>
-        </div>
-
-        <div style={{ flex: '1 1 380px', display: 'flex', flexDirection: 'column', gap: 30, minWidth: 0 }}>
+        <div style={{ flex: '1 1 100%', display: 'flex', flexDirection: 'column', gap: 30, minWidth: 0 }}>
           <div className="box bk" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 12 }}>
             <h3 className="hd" style={{ fontSize: 24 }}>Links</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14 }}>

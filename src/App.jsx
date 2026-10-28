@@ -193,7 +193,7 @@ export default function App() {
           <Player player={player} />
           <Hero me={me} />
         </>
-      ) : page === 'extras' ? <Extras handle={me.userTag} /> : <Page />}
+      ) : page === 'extras' ? <Extras /> : <Page />}
 
       <div className="zig" aria-hidden="true" style={{ marginTop: 80 }} />
       <div style={{ maxWidth: 1160, margin: '0 auto', padding: '40px 16px 20px', position: 'relative', zIndex: 1 }}>
