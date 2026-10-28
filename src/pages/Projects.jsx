@@ -34,13 +34,18 @@ export default function Projects() {
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '34px 30px', padding: '0 10px 10px 6px' }}>
             {list.map((p, i) => (
-              <div key={p.idx} className="slam" style={{ flex: '1 1 250px', maxWidth: 360, '--d': `${i * 110}ms` }}>
+              <div key={p.idx} className="slam" style={{ flex: '1 1 250px', maxWidth: 360, position: 'relative', '--d': `${i * 110}ms` }}>
+                {p.wip && <span className="wip hd" aria-label="Work in progress"><span>WIP</span></span>}
                 <a className="jag keep card pb" href="#detail" onClick={(e) => { e.preventDefault(); show(p.idx) }} style={{ display: 'block', textDecoration: 'none', border: '3px solid #0b0b0b' }}>
                   <div className="thumb"><span>PROJECT IMAGE / GIF</span></div>
                   <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10, borderTop: '3px solid #0b0b0b' }}>
                     <h3 className="hd" style={{ fontSize: 26 }}>{p.name}</h3>
-                    <div className="ln" style={{ width: '92%' }} />
-                    <div className="ln" style={{ width: '70%' }} />
+                    {p.desc ? <p style={{ fontSize: 13, lineHeight: 1.45 }}>{p.desc}</p> : (
+                      <>
+                        <div className="ln" style={{ width: '92%' }} />
+                        <div className="ln" style={{ width: '70%' }} />
+                      </>
+                    )}
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{p.tags.map((t, j) => <span key={j} className="tag">{t}</span>)}</div>
                     <div className="hd" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 14 }}>
                       <span>{p.status}</span><span className="view">view →</span>
@@ -74,7 +79,9 @@ function Detail({ p, back }) {
                   <span className="tag">{p.cat}</span><span className="tag">{p.status}</span>
                   {p.tags.map((t, j) => <span key={j} className="tag">{t}</span>)}
                 </div>
-                {['96%', '90%', '94%', '58%'].map((w) => <div key={w} className="ln" style={{ width: w }} />)}
+                {p.desc
+                  ? <p style={{ fontSize: 15, lineHeight: 1.5 }}>{p.desc}</p>
+                  : ['96%', '90%', '94%', '58%'].map((w) => <div key={w} className="ln" style={{ width: w }} />)}
               </div>
             </div>
             <div className="box bk" style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -91,7 +98,9 @@ function Detail({ p, back }) {
             <div className="box rd" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 16, border: '3px solid #0b0b0b', boxShadow: '6px 6px 0 #f2f0e6' }}>
               <h3 className="hd" style={{ fontSize: 26 }}>Links</h3>
               {['Source', 'Download', 'Docs'].map((l) => (
-                <a key={l} className="jag btn" href="#detail" onClick={(e) => e.preventDefault()} style={{ justifyContent: 'flex-start' }}>{l}</a>
+                l === 'Source' && p.source
+                  ? <a key={l} className="jag btn" href={p.source} target="_blank" rel="noreferrer" style={{ justifyContent: 'flex-start' }}>{l}</a>
+                  : <a key={l} className="jag btn" href="#detail" onClick={(e) => e.preventDefault()} style={{ justifyContent: 'flex-start' }}>{l}</a>
               ))}
             </div>
             <div className="box pb" style={{ padding: 22, display: 'flex', flexDirection: 'column', gap: 14 }}>

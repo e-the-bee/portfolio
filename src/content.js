@@ -20,8 +20,15 @@ export const ALBUMS = [
 ]
 
 export const PROJECTS = [
-  { name: '[Project one]', status: 'live', cat: 'mods', tags: ['tag', 'tag'] },
-  { name: '[Project two]', status: 'in progress', cat: 'tools', tags: ['tag', 'tag'] },
+  {
+    name: 'Portfolio', status: 'live', cat: 'web', tags: ['react', 'vite'],
+    desc: 'This site: a React + Vite portfolio with a beat-synced music player and a live GitHub activity page.',
+    source: 'https://github.com/e-the-bee/portfolio',
+  },
+  {
+    name: 'Aerogel', status: 'in progress', cat: 'mods', tags: ['minecraft', 'open source'], wip: true,
+    desc: 'A lightweight, open source alternative to most mod menus including light rendering, pvp mods, and pvp optimizers and checked to be allowed on pvp servers.',
+  },
   { name: '[Project three]', status: 'archived', cat: 'web', tags: ['tag', 'tag'] },
   { name: '[Project four]', status: 'idea', cat: 'other', tags: ['tag', 'tag'] },
   { name: '[Project five]', status: 'live', cat: 'web', tags: ['tag', 'tag'] },
