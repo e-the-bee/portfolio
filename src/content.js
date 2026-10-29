@@ -19,11 +19,12 @@ export const ALBUMS = [
   { album: 'Requiem', artist: 'Korn', cover: '/covers/requiem.jpg' },
 ]
 
+// url: where clicking the card goes (opens in a new tab). Omit it and the card is not a link.
 export const PROJECTS = [
   {
     name: 'Portfolio', status: 'live', cat: 'web', tags: ['react', 'vite'],
     desc: 'This site: a React + Vite portfolio with a beat-synced music player and a live GitHub activity page.',
-    source: 'https://github.com/e-the-bee/portfolio',
+    url: 'https://github.com/e-the-bee/portfolio',
     image: '/projects/portfolio.png',
   },
   {
@@ -52,12 +53,6 @@ export const STATS = [
 export const SKILLS = ['skill', 'skill', 'skill', 'skill', 'skill', 'skill', 'skill']
 
 export const TIMELINE = [{ year: '[year]' }, { year: '[year]' }, { year: '[year]' }]
-
-export const CHANGELOG = [
-  { v: 'v0.3', w: '80%' },
-  { v: 'v0.2', w: '65%' },
-  { v: 'v0.1', w: '50%' },
-]
 
 export const INTERESTS = 'music, code, [thing], [thing]'
 
