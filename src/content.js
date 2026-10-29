@@ -30,7 +30,10 @@ export const PROJECTS = [
     name: 'Aerogel', status: 'in progress', cat: 'mods', tags: ['minecraft', 'open source'], wip: true,
     desc: 'A lightweight, open source alternative to most mod menus including light rendering, pvp mods, and pvp optimizers and checked to be allowed on pvp servers.',
   },
-  { name: '[Project three]', status: 'archived', cat: 'web', tags: ['tag', 'tag'] },
+  {
+    name: 'Blanket', status: 'in progress', cat: 'tools', tags: ['minecraft', 'build tool'], wip: true,
+    desc: 'A multi version abstraction layer build tool for Minecraft that lets you code it once, and work on any version.',
+  },
   { name: '[Project four]', status: 'idea', cat: 'other', tags: ['tag', 'tag'] },
   { name: '[Project five]', status: 'live', cat: 'web', tags: ['tag', 'tag'] },
   { name: '[Project six]', status: 'in progress', cat: 'mods', tags: ['tag', 'tag'] },
