@@ -68,7 +68,7 @@ function Bars({ values, labels, tall = 90 }) {
       {values.map((v, i) => (
         <div key={i} title={`${labels[i]}: ${v}`} style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: 4, height: '100%' }}>
           <i style={{ display: 'block', width: '100%', height: Math.max(2, (v / max) * tall), background: v === max ? 'var(--acc)' : '#f2f0e6' }} />
-          <span style={{ fontSize: 10, opacity: 0.7, whiteSpace: 'nowrap' }}>{labels[i]}</span>
+          <span style={{ fontSize: 10, lineHeight: '14px', height: 14, opacity: 0.7, whiteSpace: 'nowrap' }}>{labels[i]}</span>
         </div>
       ))}
     </div>
